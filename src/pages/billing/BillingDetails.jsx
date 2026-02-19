@@ -58,7 +58,9 @@ export default function BillingDetails() {
 
         const settlementsQuery = getSettlements(id);
         const settlementsUnsub = onQuerySnapshot(settlementsQuery, (snapshot) => {
-            setSettlements(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            const fetchedSettlements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            fetchedSettlements.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setSettlements(fetchedSettlements);
         });
 
         return () => {

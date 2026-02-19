@@ -125,7 +125,7 @@ export const addBill = async (billData) => {
 };
 
 export const getSettlements = (billId) => {
-    return query(collection(db, 'settlements'), where('billId', '==', billId), orderBy('date', 'desc'));
+    return query(collection(db, 'settlements'), where('billId', '==', billId));
 };
 
 export const addSettlement = async (billId, amount, date) => {

@@ -21,7 +21,7 @@ export default function MainLayout({ children }) {
                         <Menu className="h-6 w-6" />
                     </button>
                     <div className="flex-1 flex justify-center items-center lg:hidden">
-                        <span className="text-xl font-bold text-gray-900">ProjectManager</span>
+                        <span className="text-xl font-bold text-gray-900">JAL ENTERPRISES</span>
                     </div>
                 </div>
 
