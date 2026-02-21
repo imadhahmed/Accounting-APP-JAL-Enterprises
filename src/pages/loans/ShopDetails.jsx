@@ -9,7 +9,8 @@ import Badge from '../../components/UI/Badge';
 import Table from '../../components/UI/Table';
 import AddLoanModal from './AddLoanModal';
 import AddSettlementModal from './AddSettlementModal';
-// Note: We might need to import update/delete services if needed later.
+import SettlementsModal from './SettlementsModal';
+import { deleteBill } from '../../services/firestore';
 
 export default function ShopDetails() {
     const { shopName } = useParams();
@@ -20,7 +21,9 @@ export default function ShopDetails() {
     const [loading, setLoading] = useState(true);
 
     const [isAddLoanModalOpen, setIsAddLoanModalOpen] = useState(false);
+    const [editBillData, setEditBillData] = useState(null);
     const [settlementBillId, setSettlementBillId] = useState(null); // The ID of the bill we're adding a settlement for
+    const [viewSettlementsBillId, setViewSettlementsBillId] = useState(null); // The ID of the bill we're viewing settlements for
 
     useEffect(() => {
         const q = query(
@@ -50,6 +53,17 @@ export default function ShopDetails() {
     const totalSettled = bills.reduce((sum, bill) => sum + Number(bill.settledAmount || 0), 0);
     const remainingBalance = totalBilled - totalSettled;
     const isPaid = remainingBalance <= 0;
+
+    const handleDeleteBill = async (billId) => {
+        if (window.confirm("Are you sure you want to delete this bill? This will also delete all associated settlements.")) {
+            try {
+                await deleteBill(billId);
+            } catch (error) {
+                console.error("Error deleting bill:", error);
+                alert("Failed to delete bill.");
+            }
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -149,13 +163,36 @@ export default function ShopDetails() {
                                         LKR {billBalance.toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 text-sm">
-                                        {!billPaid ? (
-                                            <Button size="sm" variant="secondary" onClick={() => setSettlementBillId(bill.id)}>
-                                                Pay
-                                            </Button>
-                                        ) : (
-                                            <Badge variant="green">Clear</Badge>
-                                        )}
+                                        <div className="flex items-center space-x-2">
+                                            {!billPaid ? (
+                                                <Button size="sm" variant="secondary" onClick={() => setSettlementBillId(bill.id)}>
+                                                    Pay
+                                                </Button>
+                                            ) : (
+                                                <Badge variant="green">Clear</Badge>
+                                            )}
+                                            <button
+                                                onClick={() => setViewSettlementsBillId(bill.id)}
+                                                className="text-purple-600 hover:text-purple-900 bg-purple-50 p-1.5 rounded transition-colors"
+                                                title="View Settlements"
+                                            >
+                                                <Clock className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => setEditBillData(bill)}
+                                                className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded transition-colors"
+                                                title="Edit Bill"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteBill(bill.id)}
+                                                className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors"
+                                                title="Delete Bill"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );
@@ -173,9 +210,13 @@ export default function ShopDetails() {
 
             {/* Modals for Adding Loans and Settlements */}
             <AddLoanModal
-                isOpen={isAddLoanModalOpen}
-                onClose={() => setIsAddLoanModalOpen(false)}
+                isOpen={isAddLoanModalOpen || !!editBillData}
+                onClose={() => {
+                    setIsAddLoanModalOpen(false);
+                    setEditBillData(null);
+                }}
                 defaultShopName={decodedShopName}
+                editData={editBillData}
             />
             {settlementBillId && (
                 <AddSettlementModal
@@ -183,6 +224,14 @@ export default function ShopDetails() {
                     onClose={() => setSettlementBillId(null)}
                     billId={settlementBillId}
                     bill={bills.find(b => b.id === settlementBillId)}
+                />
+            )}
+            {viewSettlementsBillId && (
+                <SettlementsModal
+                    isOpen={!!viewSettlementsBillId}
+                    onClose={() => setViewSettlementsBillId(null)}
+                    billId={viewSettlementsBillId}
+                    bill={bills.find(b => b.id === viewSettlementsBillId)}
                 />
             )}
         </div>

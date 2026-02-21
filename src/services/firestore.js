@@ -160,7 +160,19 @@ export const updateBill = async (billId, data) => {
 };
 
 export const deleteBill = async (billId) => {
-    // Note: usage of deleteDoc for bill. Settlements associated should ideally be deleted too.
+    // First, find and delete all settlements associated with this bill
+    const settlementsQuery = query(collection(db, 'settlements'), where('billId', '==', billId));
+    const settlementsSnapshot = await getDocs(settlementsQuery);
+
+    // Create an array of delete promises for all settlements
+    const deletePromises = settlementsSnapshot.docs.map(settlementDoc =>
+        deleteDoc(doc(db, 'settlements', settlementDoc.id))
+    );
+
+    // Wait for all settlements to be deleted
+    await Promise.all(deletePromises);
+
+    // Finally, delete the bill itself
     await deleteDoc(doc(db, BILLS_COLLECTION, billId));
 };
 

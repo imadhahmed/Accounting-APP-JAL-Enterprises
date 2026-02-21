@@ -4,9 +4,9 @@ import { db } from '../../firebase';
 import Modal from '../../components/UI/Modal';
 import Input from '../../components/UI/Input';
 import Button from '../../components/UI/Button';
-import { addBill } from '../../services/firestore';
+import { addBill, updateBill } from '../../services/firestore';
 
-export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
+export default function AddLoanModal({ isOpen, onClose, defaultShopName, editData }) {
     const [projects, setProjects] = useState([]);
     const [formData, setFormData] = useState({
         billNumber: '',
@@ -29,9 +29,31 @@ export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
         };
         if (isOpen) {
             fetchProjects();
-            setFormData(prev => ({ ...prev, shopName: defaultShopName || '' }));
+            if (editData) {
+                setFormData({
+                    billNumber: editData.billNumber || '',
+                    projectId: editData.projectId || '',
+                    projectName: editData.projectName || '',
+                    shopName: editData.shopName || '',
+                    totalAmount: editData.totalAmount || '',
+                    settledAmount: editData.settledAmount || '',
+                    description: editData.description || '',
+                    date: editData.date || new Date().toISOString().split('T')[0]
+                });
+            } else {
+                setFormData({
+                    billNumber: '',
+                    projectId: '',
+                    projectName: '',
+                    shopName: defaultShopName || '',
+                    totalAmount: '',
+                    settledAmount: '',
+                    description: '',
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
         }
-    }, [isOpen, defaultShopName]);
+    }, [isOpen, defaultShopName, editData]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -53,16 +75,28 @@ export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
         setError('');
 
         try {
-            await addBill({
-                billNumber: formData.billNumber,
-                projectId: formData.projectId || null,
-                projectName: formData.projectName || 'General',
-                shopName: formData.shopName,
-                totalAmount: Number(formData.totalAmount),
-                settledAmount: Number(formData.settledAmount || 0),
-                description: formData.description,
-                date: formData.date
-            });
+            if (editData) {
+                await updateBill(editData.id, {
+                    billNumber: formData.billNumber,
+                    projectId: formData.projectId || null,
+                    projectName: formData.projectName || 'General',
+                    shopName: formData.shopName,
+                    totalAmount: Number(formData.totalAmount),
+                    description: formData.description,
+                    date: formData.date
+                });
+            } else {
+                await addBill({
+                    billNumber: formData.billNumber,
+                    projectId: formData.projectId || null,
+                    projectName: formData.projectName || 'General',
+                    shopName: formData.shopName,
+                    totalAmount: Number(formData.totalAmount),
+                    settledAmount: Number(formData.settledAmount || 0),
+                    description: formData.description,
+                    date: formData.date
+                });
+            }
             onClose();
             setFormData({
                 billNumber: '',
@@ -76,14 +110,14 @@ export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
             });
         } catch (err) {
             console.error(err);
-            setError('Failed to add loan/bill record');
+            setError(editData ? 'Failed to update loan/bill record' : 'Failed to add loan/bill record');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Add New Loan/Bill">
+        <Modal isOpen={isOpen} onClose={onClose} title={editData ? "Edit Loan/Bill" : "Add New Loan/Bill"}>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                     id="billNumber"
@@ -139,6 +173,7 @@ export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
                     value={formData.settledAmount}
                     onChange={handleChange}
                     placeholder="Amount paid now (optional)"
+                    disabled={!!editData}
                 />
 
                 <Input
@@ -166,7 +201,7 @@ export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
                         Cancel
                     </Button>
                     <Button type="submit" isLoading={loading}>
-                        Save Record
+                        {editData ? "Update Record" : "Save Record"}
                     </Button>
                 </div>
             </form>
