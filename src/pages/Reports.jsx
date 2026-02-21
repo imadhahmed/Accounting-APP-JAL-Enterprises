@@ -146,15 +146,15 @@ export default function Reports() {
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Value</p>
-                            <p className="text-2xl font-bold text-indigo-600">₹{projectStats.totalValue.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-indigo-600">LKR {projectStats.totalValue.toLocaleString()}</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Expenses</p>
-                            <p className="text-2xl font-bold text-red-600">₹{projectStats.totalExpenses.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-red-600">LKR {projectStats.totalExpenses.toLocaleString()}</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Received Amount</p>
-                            <p className="text-2xl font-bold text-green-600">₹{projectStats.totalCredited.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-green-600">LKR {projectStats.totalCredited.toLocaleString()}</p>
                         </div>
                     </div>
 
@@ -167,9 +167,9 @@ export default function Reports() {
                                         <div className="text-xs text-gray-500">{new Date(project.createdAt).toLocaleDateString()}</div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{project.clientName}</td>
-                                    <td className="px-6 py-4 text-sm font-medium">₹{Number(project.totalProjectValue).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">₹{Number(project.totalCredited || 0).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-red-600">₹{Number(project.totalExpenses || 0).toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-sm font-medium">LKR {Number(project.totalProjectValue).toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-green-600">LKR {Number(project.totalCredited || 0).toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-red-600">LKR {Number(project.totalExpenses || 0).toLocaleString()}</td>
                                     <td className="px-6 py-4">
                                         <Badge variant={project.status === 'completed' ? 'success' : 'warning'}>
                                             {project.status}
@@ -195,15 +195,15 @@ export default function Reports() {
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Billed</p>
-                            <p className="text-2xl font-bold text-gray-900">₹{billStats.totalAmount.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-gray-900">LKR {billStats.totalAmount.toLocaleString()}</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Settled</p>
-                            <p className="text-2xl font-bold text-green-600">₹{billStats.totalSettled.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-green-600">LKR {billStats.totalSettled.toLocaleString()}</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Pending</p>
-                            <p className="text-2xl font-bold text-red-600">₹{billStats.pending.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-red-600">LKR {billStats.pending.toLocaleString()}</p>
                         </div>
                     </div>
 
@@ -215,10 +215,10 @@ export default function Reports() {
                                     <td className="px-6 py-4 text-sm text-gray-900">{bill.shopName}</td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{new Date(bill.date).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{bill.projectName}</td>
-                                    <td className="px-6 py-4 text-sm font-medium">₹{Number(bill.totalAmount).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">₹{Number(bill.settledAmount || 0).toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-sm font-medium">LKR {Number(bill.totalAmount).toLocaleString()}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-green-600">LKR {Number(bill.settledAmount || 0).toLocaleString()}</td>
                                     <td className="px-6 py-4 text-sm font-medium text-red-600">
-                                        ₹{(Number(bill.totalAmount) - Number(bill.settledAmount || 0)).toLocaleString()}
+                                        LKR {(Number(bill.totalAmount) - Number(bill.settledAmount || 0)).toLocaleString()}
                                     </td>
                                 </tr>
                             ))}

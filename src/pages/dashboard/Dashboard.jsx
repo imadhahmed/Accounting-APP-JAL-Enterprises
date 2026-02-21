@@ -58,25 +58,25 @@ export default function Dashboard() {
     const statCards = [
         {
             name: 'Total Project Value',
-            value: `₹${stats.totalProjectValue.toLocaleString()}`,
+            value: `LKR ${stats.totalProjectValue.toLocaleString()}`,
             icon: Briefcase,
             color: 'bg-blue-500'
         },
         {
             name: 'Total Credited',
-            value: `₹${stats.totalCredited.toLocaleString()}`,
+            value: `LKR ${stats.totalCredited.toLocaleString()}`,
             icon: TrendingUp,
             color: 'bg-green-500'
         },
         {
             name: 'Total Expenses',
-            value: `₹${stats.totalExpenses.toLocaleString()}`,
+            value: `LKR ${stats.totalExpenses.toLocaleString()}`,
             icon: TrendingDown,
             color: 'bg-red-500'
         },
         {
             name: 'Available Balance',
-            value: `₹${stats.availableBalance.toLocaleString()}`,
+            value: `LKR ${stats.availableBalance.toLocaleString()}`,
             icon: DollarSign,
             color: 'bg-purple-500',
             textColor: stats.availableBalance < 0 ? 'text-red-600' : 'text-green-600'
@@ -141,13 +141,13 @@ export default function Dashboard() {
                                             <div className="text-sm font-medium text-gray-900">{project.name}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">₹{Number(project.value).toLocaleString()}</div>
+                                            <div className="text-sm text-gray-900">LKR {Number(project.value).toLocaleString()}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-green-600">₹{(project.totalCredited || 0).toLocaleString()}</div>
+                                            <div className="text-sm text-green-600">LKR {(project.totalCredited || 0).toLocaleString()}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-red-600">₹{(project.totalExpenses || 0).toLocaleString()}</div>
+                                            <div className="text-sm text-red-600">LKR {(project.totalExpenses || 0).toLocaleString()}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <Badge variant={project.totalCredited >= project.value ? 'green' : 'blue'}>

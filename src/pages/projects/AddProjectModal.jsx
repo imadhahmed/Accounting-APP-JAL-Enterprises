@@ -99,7 +99,7 @@ export default function AddProjectModal({ isOpen, onClose, onProjectAdded }) {
 
                 <Input
                     id="value"
-                    label="Project Value (₹)"
+                    label="Project Value (LKR)"
                     type="number"
                     required
                     min="0"

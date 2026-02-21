@@ -6,15 +6,16 @@ import Input from '../../components/UI/Input';
 import Button from '../../components/UI/Button';
 import { addBill } from '../../services/firestore';
 
-export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
+export default function AddLoanModal({ isOpen, onClose, defaultShopName }) {
     const [projects, setProjects] = useState([]);
     const [formData, setFormData] = useState({
         billNumber: '',
         projectId: '',
-        projectName: '', // Store name for easier display
-        shopName: '',
+        projectName: '',
+        shopName: defaultShopName || '',
         totalAmount: '',
         settledAmount: '',
+        description: '',
         date: new Date().toISOString().split('T')[0]
     });
     const [loading, setLoading] = useState(false);
@@ -28,8 +29,9 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
         };
         if (isOpen) {
             fetchProjects();
+            setFormData(prev => ({ ...prev, shopName: defaultShopName || '' }));
         }
-    }, [isOpen]);
+    }, [isOpen, defaultShopName]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -58,29 +60,30 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
                 shopName: formData.shopName,
                 totalAmount: Number(formData.totalAmount),
                 settledAmount: Number(formData.settledAmount || 0),
+                description: formData.description,
                 date: formData.date
             });
-            onBillAdded();
             onClose();
             setFormData({
                 billNumber: '',
                 projectId: '',
                 projectName: '',
-                shopName: '',
+                shopName: defaultShopName || '',
                 totalAmount: '',
                 settledAmount: '',
+                description: '',
                 date: new Date().toISOString().split('T')[0]
             });
         } catch (err) {
             console.error(err);
-            setError('Failed to add bill');
+            setError('Failed to add loan/bill record');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Add New Bill">
+        <Modal isOpen={isOpen} onClose={onClose} title="Add New Loan/Bill">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                     id="billNumber"
@@ -88,6 +91,16 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
                     type="text"
                     required
                     value={formData.billNumber}
+                    onChange={handleChange}
+                />
+
+                <Input
+                    id="shopName"
+                    label="Shop Name"
+                    type="text"
+                    required
+                    readOnly={!!defaultShopName}
+                    value={formData.shopName}
                     onChange={handleChange}
                 />
 
@@ -110,7 +123,7 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
 
                 <Input
                     id="totalAmount"
-                    label="Total Bill Amount (₹)"
+                    label="Bill Amount (LKR)"
                     type="number"
                     required
                     min="0"
@@ -119,23 +132,22 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
                 />
 
                 <Input
-                    id="shopName"
-                    label="Shop Name"
-                    type="text"
-                    required
-                    placeholder="Enter shop or vendor name"
-                    value={formData.shopName}
-                    onChange={handleChange}
-                />
-
-                <Input
                     id="settledAmount"
-                    label="Initial Settled Amount (₹)"
+                    label="Settled Amount (LKR)"
                     type="number"
                     min="0"
                     value={formData.settledAmount}
                     onChange={handleChange}
-                    placeholder="Amount paid now"
+                    placeholder="Amount paid now (optional)"
+                />
+
+                <Input
+                    id="description"
+                    label="Description (Optional)"
+                    type="text"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Enter bill description"
                 />
 
                 <Input
@@ -154,7 +166,7 @@ export default function AddBillModal({ isOpen, onClose, onBillAdded }) {
                         Cancel
                     </Button>
                     <Button type="submit" isLoading={loading}>
-                        Create Bill
+                        Save Record
                     </Button>
                 </div>
             </form>

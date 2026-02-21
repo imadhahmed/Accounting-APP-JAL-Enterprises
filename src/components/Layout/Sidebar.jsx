@@ -10,7 +10,7 @@ export default function Sidebar({ isOpen, onClose }) {
     const navigation = [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         { name: 'Projects', href: '/projects', icon: Briefcase },
-        { name: 'Shop Billing', href: '/billing', icon: Receipt },
+        { name: 'Loans & Settlements', href: '/loans', icon: Receipt },
         { name: 'Reports', href: '/reports', icon: FileText },
     ];
 

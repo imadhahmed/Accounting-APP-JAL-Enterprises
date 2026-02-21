@@ -35,7 +35,7 @@ export default function EditExpenseModal({ isOpen, onClose, expense, onSave }) {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                     id="edit-expense-amount"
-                    label="Amount (₹)"
+                    label="Amount (LKR)"
                     type="number"
                     required
                     min="0"

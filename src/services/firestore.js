@@ -61,11 +61,12 @@ export const addProjectTransaction = async (projectId, type, data) => {
 // Start using increment for atomic updates
 import { increment } from 'firebase/firestore';
 
-export const addCredit = async (projectId, amount, date) => {
+export const addCredit = async (projectId, amount, date, description = '') => {
     const creditRef = collection(db, PROJECTS_COLLECTION, projectId, 'credits');
     await addDoc(creditRef, {
         amount: Number(amount),
         date: date,
+        description: description,
         createdAt: new Date().toISOString()
     });
 
@@ -164,9 +165,13 @@ export const deleteBill = async (billId) => {
 };
 
 // Subcollection Updates
-export const updateCredit = async (projectId, creditId, oldAmount, newAmount, date) => {
+export const updateCredit = async (projectId, creditId, oldAmount, newAmount, date, description) => {
     const creditRef = doc(db, PROJECTS_COLLECTION, projectId, 'credits', creditId);
-    await updateDoc(creditRef, { amount: Number(newAmount), date });
+    const updateData = { amount: Number(newAmount), date };
+    if (description !== undefined) {
+        updateData.description = description;
+    }
+    await updateDoc(creditRef, updateData);
 
     if (Number(oldAmount) !== Number(newAmount)) {
         const diff = Number(newAmount) - Number(oldAmount);

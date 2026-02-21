@@ -81,9 +81,10 @@ export default function ProjectDetails() {
         e.preventDefault();
         setActionLoading(true);
         try {
-            await addCredit(id, amount, date);
+            await addCredit(id, amount, date, description);
             setIsCreditModalOpen(false);
             setAmount('');
+            setDescription('');
             setDate(new Date().toISOString().split('T')[0]);
         } catch (error) {
             console.error(error);
@@ -109,8 +110,8 @@ export default function ProjectDetails() {
     };
 
     // Transaction Handlers
-    const handleUpdateCredit = async (creditId, oldAmount, newAmount, newDate) => {
-        await updateCredit(id, creditId, oldAmount, newAmount, newDate);
+    const handleUpdateCredit = async (creditId, oldAmount, newAmount, newDate, newDescription) => {
+        await updateCredit(id, creditId, oldAmount, newAmount, newDate, newDescription);
         setEditingCredit(null);
     };
 
@@ -193,20 +194,20 @@ export default function ProjectDetails() {
                 <div className="grid grid-cols-2 gap-4">
                     <Card className="bg-blue-50 border-blue-100">
                         <p className="text-sm font-medium text-blue-600">Project Value</p>
-                        <p className="text-2xl font-bold text-blue-900 mt-1">₹{Number(project.value).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-blue-900 mt-1">LKR {Number(project.value).toLocaleString()}</p>
                     </Card>
                     <Card className="bg-green-50 border-green-100">
                         <p className="text-sm font-medium text-green-600">Total Credited</p>
-                        <p className="text-2xl font-bold text-green-900 mt-1">₹{(project.totalCredited || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-green-900 mt-1">LKR {(project.totalCredited || 0).toLocaleString()}</p>
                     </Card>
                     <Card className="bg-red-50 border-red-100">
                         <p className="text-sm font-medium text-red-600">Total Expenses</p>
-                        <p className="text-2xl font-bold text-red-900 mt-1">₹{(project.totalExpenses || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-red-900 mt-1">LKR {(project.totalExpenses || 0).toLocaleString()}</p>
                     </Card>
                     <Card className="bg-purple-50 border-purple-100">
                         <p className="text-sm font-medium text-purple-600">Available Balance</p>
                         <p className={`text-2xl font-bold mt-1 ${(project.totalCredited - project.totalExpenses) < 0 ? 'text-red-900' : 'text-purple-900'}`}>
-                            ₹{((project.totalCredited || 0) - (project.totalExpenses || 0)).toLocaleString()}
+                            LKR {((project.totalCredited || 0) - (project.totalExpenses || 0)).toLocaleString()}
                         </p>
                     </Card>
                 </div>
@@ -225,14 +226,17 @@ export default function ProjectDetails() {
                         </Button>
                     </div>
                     <Card className="p-0 overflow-hidden">
-                        <Table headers={['Date', 'Amount', 'Actions']}>
+                        <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
                             {credits.map((credit) => (
                                 <tr key={credit.id}>
                                     <td className="px-6 py-4 text-sm text-gray-500">
                                         {new Date(credit.date).toLocaleDateString()}
                                     </td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {credit.description || '-'}
+                                    </td>
                                     <td className="px-6 py-4 text-sm font-medium text-green-600">
-                                        ₹{Number(credit.amount).toLocaleString()}
+                                        LKR {Number(credit.amount).toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">
                                         <div className="flex space-x-2">
@@ -248,7 +252,7 @@ export default function ProjectDetails() {
                             ))}
                             {credits.length === 0 && (
                                 <tr>
-                                    <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                                    <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
                                         No credits recorded yet.
                                     </td>
                                 </tr>
@@ -279,7 +283,7 @@ export default function ProjectDetails() {
                                         {expense.description}
                                     </td>
                                     <td className="px-6 py-4 text-sm font-medium text-red-600">
-                                        ₹{Number(expense.amount).toLocaleString()}
+                                        LKR {Number(expense.amount).toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">
                                         <div className="flex space-x-2">
@@ -314,12 +318,20 @@ export default function ProjectDetails() {
                 <form onSubmit={handleAddCredit} className="space-y-4">
                     <Input
                         id="credit-amount"
-                        label="Amount (₹)"
+                        label="Amount (LKR)"
                         type="number"
                         required
                         min="0"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
+                    />
+                    <Input
+                        id="credit-desc"
+                        label="Description"
+                        type="text"
+                        placeholder="e.g., Payment received"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
                     <Input
                         id="credit-date"
@@ -349,7 +361,7 @@ export default function ProjectDetails() {
                 <form onSubmit={handleAddExpense} className="space-y-4">
                     <Input
                         id="expense-amount"
-                        label="Amount (₹)"
+                        label="Amount (LKR)"
                         type="number"
                         required
                         min="0"

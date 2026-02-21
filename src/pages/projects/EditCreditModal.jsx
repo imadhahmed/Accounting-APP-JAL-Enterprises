@@ -6,12 +6,14 @@ import Button from '../../components/UI/Button';
 export default function EditCreditModal({ isOpen, onClose, credit, onSave }) {
     const [amount, setAmount] = useState('');
     const [date, setDate] = useState('');
+    const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (credit) {
             setAmount(credit.amount);
             setDate(credit.date);
+            setDescription(credit.description || '');
         }
     }, [credit, isOpen]);
 
@@ -19,7 +21,7 @@ export default function EditCreditModal({ isOpen, onClose, credit, onSave }) {
         e.preventDefault();
         setLoading(true);
         try {
-            await onSave(credit.id, credit.amount, amount, date);
+            await onSave(credit.id, credit.amount, amount, date, description);
             onClose();
         } catch (error) {
             console.error(error);
@@ -33,12 +35,19 @@ export default function EditCreditModal({ isOpen, onClose, credit, onSave }) {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
                     id="edit-credit-amount"
-                    label="Amount (₹)"
+                    label="Amount (LKR)"
                     type="number"
                     required
                     min="0"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
+                />
+                <Input
+                    id="edit-credit-desc"
+                    label="Description"
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
                 <Input
                     id="edit-credit-date"

@@ -78,20 +78,20 @@ export default function ProjectList() {
                                 <div className="mt-4 space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Value:</span>
-                                        <span className="font-medium">₹{Number(project.value).toLocaleString()}</span>
+                                        <span className="font-medium">LKR {Number(project.value).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Credited:</span>
-                                        <span className="font-medium text-green-600">₹{Number(project.totalCredited || 0).toLocaleString()}</span>
+                                        <span className="font-medium text-green-600">LKR {Number(project.totalCredited || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Expenses:</span>
-                                        <span className="font-medium text-red-600">₹{Number(project.totalExpenses || 0).toLocaleString()}</span>
+                                        <span className="font-medium text-red-600">LKR {Number(project.totalExpenses || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="border-t pt-2 mt-2 flex justify-between text-sm font-semibold">
                                         <span>Balance:</span>
                                         <span className={(project.totalCredited - project.totalExpenses) < 0 ? 'text-red-600' : 'text-gray-900'}>
-                                            ₹{((project.totalCredited || 0) - (project.totalExpenses || 0)).toLocaleString()}
+                                            LKR {((project.totalCredited || 0) - (project.totalExpenses || 0)).toLocaleString()}
                                         </span>
                                     </div>
                                 </div>

@@ -6,8 +6,8 @@ import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import ProjectList from './pages/projects/ProjectList';
 import ProjectDetails from './pages/projects/ProjectDetails';
-import BillingList from './pages/billing/BillingList';
-import BillingDetails from './pages/billing/BillingDetails';
+import LoansList from './pages/loans/LoansList';
+import ShopDetails from './pages/loans/ShopDetails';
 import Reports from './pages/Reports';
 import MainLayout from './components/Layout/MainLayout';
 
@@ -27,8 +27,8 @@ function App() {
                                         <Route path="/" element={<Dashboard />} />
                                         <Route path="/projects" element={<ProjectList />} />
                                         <Route path="/projects/:id" element={<ProjectDetails />} />
-                                        <Route path="/billing" element={<BillingList />} />
-                                        <Route path="/billing/:id" element={<BillingDetails />} />
+                                        <Route path="/loans" element={<LoansList />} />
+                                        <Route path="/loans/shop/:shopName" element={<ShopDetails />} />
                                         <Route path="/reports" element={<Reports />} />
                                         <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
