@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { PROJECTS_COLLECTION, BILLS_COLLECTION } from '../services/firestore';
+import { PROJECTS_COLLECTION, BILLS_COLLECTION, COMMON_PAYS_COLLECTION } from '../services/firestore';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
@@ -13,6 +13,7 @@ export default function Reports() {
     const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'billing'
     const [projects, setProjects] = useState([]);
     const [bills, setBills] = useState([]);
+    const [commonPays, setCommonPays] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Filters
@@ -22,6 +23,7 @@ export default function Reports() {
     useEffect(() => {
         const projectsQuery = query(collection(db, PROJECTS_COLLECTION), orderBy('createdAt', 'desc'));
         const billsQuery = query(collection(db, BILLS_COLLECTION), orderBy('date', 'desc'));
+        const commonPaysQuery = query(collection(db, COMMON_PAYS_COLLECTION), orderBy('date', 'desc'));
 
         const unsubProjects = onSnapshot(projectsQuery, (snapshot) => {
             setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -31,11 +33,16 @@ export default function Reports() {
             setBills(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
 
+        const unsubCommonPays = onSnapshot(commonPaysQuery, (snapshot) => {
+            setCommonPays(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
         setLoading(false);
 
         return () => {
             unsubProjects();
             unsubBills();
+            unsubCommonPays();
         };
     }, []);
 
@@ -51,6 +58,7 @@ export default function Reports() {
 
     const filteredProjects = projects.filter(p => filterByDate(p, p.createdAt));
     const filteredBills = bills.filter(b => filterByDate(b, b.date));
+    const filteredCommonPays = commonPays.filter(cp => filterByDate(cp, cp.date));
 
     // Project Stats
     const projectStats = {
@@ -62,11 +70,15 @@ export default function Reports() {
     };
 
     // Bill Stats
+    const totalSpecificSettled = filteredBills.reduce((sum, b) => sum + Number(b.settledAmount || 0), 0);
+    const totalCommonPay = filteredCommonPays.reduce((sum, cp) => sum + Number(cp.amount || 0), 0);
+
     const billStats = {
         total: filteredBills.length,
         totalAmount: filteredBills.reduce((sum, b) => sum + Number(b.totalAmount || 0), 0),
-        totalSettled: filteredBills.reduce((sum, b) => sum + Number(b.settledAmount || 0), 0),
-        pending: filteredBills.reduce((sum, b) => sum + (Number(b.totalAmount || 0) - Number(b.settledAmount || 0)), 0),
+        totalSettled: totalSpecificSettled + totalCommonPay,
+        pending: filteredBills.reduce((sum, b) => sum + Number(b.totalAmount || 0), 0) - (totalSpecificSettled + totalCommonPay),
+        totalCommonPay: totalCommonPay
     };
 
     const handlePrint = () => {
@@ -115,8 +127,8 @@ export default function Reports() {
                     <button
                         onClick={() => setActiveTab('projects')}
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'projects'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Project Reports
@@ -124,8 +136,8 @@ export default function Reports() {
                     <button
                         onClick={() => setActiveTab('billing')}
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'billing'
-                                ? 'border-indigo-500 text-indigo-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Billing Reports
@@ -188,7 +200,7 @@ export default function Reports() {
                     <h2 className="text-xl font-bold text-gray-900 mb-4 print:mb-2 print:mt-8">Billing Summary</h2>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Bills</p>
                             <p className="text-2xl font-bold text-gray-900">{billStats.total}</p>
@@ -200,6 +212,10 @@ export default function Reports() {
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Settled</p>
                             <p className="text-2xl font-bold text-green-600">LKR {billStats.totalSettled.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
+                            <p className="text-sm text-gray-500">Common Pays</p>
+                            <p className="text-2xl font-bold text-blue-600">LKR {billStats.totalCommonPay.toLocaleString()}</p>
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Pending</p>

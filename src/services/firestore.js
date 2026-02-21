@@ -13,10 +13,10 @@ import {
 import { db } from '../firebase';
 
 // Collection References
-// Collection References
 export const PROJECTS_COLLECTION = 'projects';
 export const BILLS_COLLECTION = 'bills';
 export const USERS_COLLECTION = 'users';
+export const COMMON_PAYS_COLLECTION = 'commonPays';
 
 // Projects
 export const getProjects = (userId) => {
@@ -243,3 +243,23 @@ export const deleteSettlement = async (billId, settlementId, amount) => {
         settledAmount: increment(-Number(amount))
     });
 };
+
+// Common Pays
+export const getCommonPays = () => {
+    return query(collection(db, COMMON_PAYS_COLLECTION), orderBy('date', 'desc'));
+};
+
+export const addCommonPay = async (shopName, amount, date, description = '') => {
+    return await addDoc(collection(db, COMMON_PAYS_COLLECTION), {
+        shopName,
+        amount: Number(amount),
+        date,
+        description,
+        createdAt: new Date().toISOString()
+    });
+};
+
+export const deleteCommonPay = async (commonPayId) => {
+    await deleteDoc(doc(db, COMMON_PAYS_COLLECTION, commonPayId));
+};
+

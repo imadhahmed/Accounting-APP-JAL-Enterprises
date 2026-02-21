@@ -10,7 +10,8 @@ import Table from '../../components/UI/Table';
 import AddLoanModal from './AddLoanModal';
 import AddSettlementModal from './AddSettlementModal';
 import SettlementsModal from './SettlementsModal';
-import { deleteBill } from '../../services/firestore';
+import { deleteBill, deleteCommonPay, COMMON_PAYS_COLLECTION } from '../../services/firestore';
+import AddCommonPayModal from './AddCommonPayModal';
 
 export default function ShopDetails() {
     const { shopName } = useParams();
@@ -18,9 +19,12 @@ export default function ShopDetails() {
     const navigate = useNavigate();
 
     const [bills, setBills] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [commonPays, setCommonPays] = useState([]);
+    const [loadingBills, setLoadingBills] = useState(true);
+    const [loadingCommonPays, setLoadingCommonPays] = useState(true);
 
     const [isAddLoanModalOpen, setIsAddLoanModalOpen] = useState(false);
+    const [isAddCommonPayModalOpen, setIsAddCommonPayModalOpen] = useState(false);
     const [editBillData, setEditBillData] = useState(null);
     const [settlementBillId, setSettlementBillId] = useState(null); // The ID of the bill we're adding a settlement for
     const [viewSettlementsBillId, setViewSettlementsBillId] = useState(null); // The ID of the bill we're viewing settlements for
@@ -31,7 +35,7 @@ export default function ShopDetails() {
             where('shopName', '==', decodedShopName)
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribeBills = onSnapshot(q, (snapshot) => {
             const fetchedBills = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
@@ -40,19 +44,49 @@ export default function ShopDetails() {
             // Sorting in client to avoid index requirement for now.
             fetchedBills.sort((a, b) => new Date(b.date) - new Date(a.date));
             setBills(fetchedBills);
-            setLoading(false);
+            setLoadingBills(false);
         });
 
-        return () => unsubscribe();
+        const commonPaysQuery = query(
+            collection(db, COMMON_PAYS_COLLECTION),
+            where('shopName', '==', decodedShopName)
+        );
+
+        const unsubscribeCommonPays = onSnapshot(commonPaysQuery, (snapshot) => {
+            const fetchedCommonPays = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            fetchedCommonPays.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setCommonPays(fetchedCommonPays);
+            setLoadingCommonPays(false);
+        });
+
+        return () => {
+            unsubscribeBills();
+            unsubscribeCommonPays();
+        };
     }, [decodedShopName]);
 
-    if (loading) return <div className="p-8 text-center">Loading shop details...</div>;
+    if (loadingBills || loadingCommonPays) return <div className="p-8 text-center">Loading shop details...</div>;
 
     // Calculate Shop Totals
     const totalBilled = bills.reduce((sum, bill) => sum + Number(bill.totalAmount || 0), 0);
     const totalSettled = bills.reduce((sum, bill) => sum + Number(bill.settledAmount || 0), 0);
-    const remainingBalance = totalBilled - totalSettled;
+    const totalCommonPay = commonPays.reduce((sum, pay) => sum + Number(pay.amount || 0), 0);
+    const remainingBalance = totalBilled - (totalSettled + totalCommonPay);
     const isPaid = remainingBalance <= 0;
+
+    const handleDeleteCommonPay = async (payId) => {
+        if (window.confirm("Are you sure you want to delete this common payment?")) {
+            try {
+                await deleteCommonPay(payId);
+            } catch (error) {
+                console.error("Error deleting common pay:", error);
+                alert("Failed to delete common pay.");
+            }
+        }
+    };
 
     const handleDeleteBill = async (billId) => {
         if (window.confirm("Are you sure you want to delete this bill? This will also delete all associated settlements.")) {
@@ -83,15 +117,21 @@ export default function ShopDetails() {
                                 </Badge>
                             </div>
                         </div>
-                        <Button onClick={() => setIsAddLoanModalOpen(true)}>
-                            <Plus className="h-5 w-5 mr-2" />
-                            Add Record
-                        </Button>
+                        <div className="flex space-x-2">
+                            <Button variant="secondary" onClick={() => setIsAddCommonPayModalOpen(true)}>
+                                <Plus className="h-5 w-5 mr-2" />
+                                Add Common Pay
+                            </Button>
+                            <Button onClick={() => setIsAddLoanModalOpen(true)}>
+                                <Plus className="h-5 w-5 mr-2" />
+                                Add Record
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="bg-white border-blue-100 border-l-4 border-l-blue-500">
                     <div className="flex items-center justify-between">
                         <div>
@@ -112,6 +152,18 @@ export default function ShopDetails() {
                         </div>
                         <div className="bg-green-100 p-2 rounded-lg">
                             <CheckCircle className="h-6 w-6 text-green-600" />
+                        </div>
+                    </div>
+                </Card>
+
+                <Card className="bg-white border-indigo-100 border-l-4 border-l-indigo-500">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Common Pay</p>
+                            <p className="text-2xl font-bold text-indigo-600 mt-1">LKR {totalCommonPay.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-indigo-100 p-2 rounded-lg">
+                            <DollarSign className="h-6 w-6 text-indigo-600" />
                         </div>
                     </div>
                 </Card>
@@ -208,6 +260,38 @@ export default function ShopDetails() {
                 </Card>
             </div>
 
+            {commonPays.length > 0 && (
+                <div className="space-y-4">
+                    <h2 className="text-lg font-medium text-gray-900">Common Payments</h2>
+                    <Card className="p-0 overflow-hidden">
+                        <Table headers={['Date', 'Amount', 'Description', 'Action']}>
+                            {commonPays.map((pay) => (
+                                <tr key={pay.id}>
+                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                        {new Date(pay.date).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-medium text-blue-600">
+                                        LKR {Number(pay.amount).toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                        {pay.description || '-'}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm">
+                                        <button
+                                            onClick={() => handleDeleteCommonPay(pay.id)}
+                                            className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors"
+                                            title="Delete Common Pay"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </Table>
+                    </Card>
+                </div>
+            )}
+
             {/* Modals for Adding Loans and Settlements */}
             <AddLoanModal
                 isOpen={isAddLoanModalOpen || !!editBillData}
@@ -234,6 +318,11 @@ export default function ShopDetails() {
                     bill={bills.find(b => b.id === viewSettlementsBillId)}
                 />
             )}
+            <AddCommonPayModal
+                isOpen={isAddCommonPayModalOpen}
+                onClose={() => setIsAddCommonPayModalOpen(false)}
+                shopName={decodedShopName}
+            />
         </div>
     );
 }

@@ -8,6 +8,7 @@ import Input from '../../components/UI/Input';
 import Badge from '../../components/UI/Badge';
 import Button from '../../components/UI/Button';
 import AddLoanModal from './AddLoanModal';
+import { COMMON_PAYS_COLLECTION } from '../../services/firestore';
 
 export default function LoansList() {
     const [shops, setShops] = useState([]);
@@ -16,33 +17,55 @@ export default function LoansList() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     useEffect(() => {
-        const q = query(collection(db, 'bills'), orderBy('date', 'desc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const billsData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+        const billsQuery = query(collection(db, 'bills'), orderBy('date', 'desc'));
+        const commonPaysQuery = query(collection(db, COMMON_PAYS_COLLECTION), orderBy('date', 'desc'));
 
-            // Group bills by shopName
-            const grouped = billsData.reduce((acc, bill) => {
+        let billsData = [];
+        let commonPaysData = [];
+
+        const processData = () => {
+            const grouped = {};
+
+            // Process bills
+            billsData.forEach(bill => {
                 const shopName = bill.shopName || 'Unknown Shop';
-                if (!acc[shopName]) {
-                    acc[shopName] = {
+                if (!grouped[shopName]) {
+                    grouped[shopName] = {
                         shopName,
                         totalBilled: 0,
                         totalSettled: 0,
+                        totalCommonPay: 0,
                         totalBalance: 0,
                         billCount: 0,
                     };
                 }
                 const settled = Number(bill.settledAmount || 0);
                 const total = Number(bill.totalAmount || 0);
-                acc[shopName].totalBilled += total;
-                acc[shopName].totalSettled += settled;
-                acc[shopName].totalBalance += (total - settled);
-                acc[shopName].billCount += 1;
-                return acc;
-            }, {});
+                grouped[shopName].totalBilled += total;
+                grouped[shopName].totalSettled += settled;
+                grouped[shopName].billCount += 1;
+            });
+
+            // Process common pays
+            commonPaysData.forEach(pay => {
+                const shopName = pay.shopName || 'Unknown Shop';
+                if (!grouped[shopName]) {
+                    grouped[shopName] = {
+                        shopName,
+                        totalBilled: 0,
+                        totalSettled: 0,
+                        totalCommonPay: 0,
+                        totalBalance: 0,
+                        billCount: 0,
+                    };
+                }
+                grouped[shopName].totalCommonPay += Number(pay.amount || 0);
+            });
+
+            // Calculate balance
+            Object.values(grouped).forEach(shop => {
+                shop.totalBalance = shop.totalBilled - (shop.totalSettled + shop.totalCommonPay);
+            });
 
             // Convert to array and sort alphabetically by shopName
             const shopsArray = Object.values(grouped).sort((a, b) =>
@@ -51,8 +74,22 @@ export default function LoansList() {
 
             setShops(shopsArray);
             setLoading(false);
+        };
+
+        const unsubscribeBills = onSnapshot(billsQuery, (snapshot) => {
+            billsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            processData();
         });
-        return () => unsubscribe();
+
+        const unsubscribeCommonPays = onSnapshot(commonPaysQuery, (snapshot) => {
+            commonPaysData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            processData();
+        });
+
+        return () => {
+            unsubscribeBills();
+            unsubscribeCommonPays();
+        };
     }, []);
 
     const filteredShops = shops.filter(shop =>
@@ -114,6 +151,12 @@ export default function LoansList() {
                                             <span className="text-gray-500">Total Settled:</span>
                                             <span className="font-medium text-green-600">LKR {shop.totalSettled.toLocaleString()}</span>
                                         </div>
+                                        {shop.totalCommonPay > 0 && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-500">Total Common Pay:</span>
+                                                <span className="font-medium text-blue-600">LKR {shop.totalCommonPay.toLocaleString()}</span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100">
                                             <span>Balance to Settle:</span>
                                             <span className="text-red-500 text-base">LKR {shop.totalBalance.toLocaleString()}</span>
