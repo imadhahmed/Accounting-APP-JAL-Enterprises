@@ -7,14 +7,15 @@ import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
 import Table from '../components/UI/Table';
 import Badge from '../components/UI/Badge';
-import { Printer, Calendar, FileText, TrendingUp, DollarSign } from 'lucide-react';
+import { Printer, Calendar, FileText, TrendingUp, DollarSign, ChevronDown, ChevronRight, History } from 'lucide-react';
 
 export default function Reports() {
-    const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'billing'
+    const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'billing' or 'daily'
     const [projects, setProjects] = useState([]);
     const [bills, setBills] = useState([]);
     const [commonPays, setCommonPays] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [expandedDate, setExpandedDate] = useState(null);
 
     // Filters
     const [startDate, setStartDate] = useState('');
@@ -81,6 +82,19 @@ export default function Reports() {
         totalCommonPay: totalCommonPay
     };
 
+    // Daily History Logic
+    const getFormattedDate = (dateString) => {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const allHistoryDates = [...new Set([
+        ...filteredProjects.map(p => getFormattedDate(p.createdAt)),
+        ...filteredBills.map(b => getFormattedDate(b.date)),
+        ...filteredCommonPays.map(cp => getFormattedDate(cp.date))
+    ])].filter(Boolean).sort((a, b) => new Date(b) - new Date(a));
+
     const handlePrint = () => {
         window.print();
     };
@@ -126,21 +140,33 @@ export default function Reports() {
                 <nav className="-mb-px flex space-x-8">
                     <button
                         onClick={() => setActiveTab('projects')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'projects'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'projects'
                             ? 'border-indigo-500 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
+                        <FileText className="h-4 w-4 mr-2" />
                         Project Reports
                     </button>
                     <button
                         onClick={() => setActiveTab('billing')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'billing'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'billing'
                             ? 'border-indigo-500 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
+                        <DollarSign className="h-4 w-4 mr-2" />
                         Billing Reports
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('daily')}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'daily'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        <History className="h-4 w-4 mr-2" />
+                        Daily History
                     </button>
                 </nav>
             </div>
@@ -240,6 +266,114 @@ export default function Reports() {
                             ))}
                         </Table>
                     </Card>
+                </div>
+            )}
+
+            {/* Daily History Content */}
+            {(activeTab === 'daily' || window.matchMedia('print').matches) && (
+                <div className={`mt-8 ${activeTab !== 'daily' ? 'print:hidden' : ''}`}>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 print:mb-2 print:mt-8">Daily History Tracker</h2>
+                    <div className="space-y-4">
+                        {allHistoryDates.map(date => {
+                            const dateProjects = filteredProjects.filter(p => getFormattedDate(p.createdAt) === date);
+                            const dateBills = filteredBills.filter(b => getFormattedDate(b.date) === date);
+                            const dateCommonPays = filteredCommonPays.filter(cp => getFormattedDate(cp.date) === date);
+
+                            const isExpanded = expandedDate === date || window.matchMedia('print').matches;
+
+                            return (
+                                <Card key={date} className="p-0 overflow-hidden print:shadow-none print:border-black print:mb-4">
+                                    <div
+                                        className="bg-gray-50 px-6 py-4 cursor-pointer flex justify-between items-center hover:bg-gray-100 print:bg-white print:border-b print:border-black"
+                                        onClick={() => setExpandedDate(isExpanded ? null : date)}
+                                    >
+                                        <div className="flex items-center space-x-4">
+                                            <Calendar className="h-5 w-5 text-indigo-600 print:hidden" />
+                                            <h3 className="text-lg font-bold text-gray-900">{new Date(date).toLocaleDateString()}</h3>
+                                            <div className="flex space-x-2 text-sm print:hidden">
+                                                {dateBills.length > 0 && <Badge variant="info">{dateBills.length} Bills</Badge>}
+                                                {dateCommonPays.length > 0 && <Badge variant="warning">{dateCommonPays.length} Common Pays</Badge>}
+                                                {dateProjects.length > 0 && <Badge variant="success">{dateProjects.length} Projects</Badge>}
+                                            </div>
+                                        </div>
+                                        <div className="text-gray-500 print:hidden">
+                                            {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                                        </div>
+                                    </div>
+
+                                    {isExpanded && (
+                                        <div className="p-6 space-y-6 bg-white shrink-0">
+                                            {dateBills.length > 0 && (
+                                                <div className="overflow-x-auto">
+                                                    <h4 className="font-semibold text-gray-700 mb-2 border-b pb-1 flex items-center">
+                                                        <FileText className="h-4 w-4 mr-2" />
+                                                        Bills
+                                                    </h4>
+                                                    <Table headers={['Bill #', 'Shop', 'Project', 'Description', 'Amount', 'Settled']}>
+                                                        {dateBills.map(bill => (
+                                                            <tr key={`bill-${bill.id}`} className="print:break-inside-avoid">
+                                                                <td className="px-6 py-3 text-sm font-medium">#{bill.billNumber}</td>
+                                                                <td className="px-6 py-3 text-sm">{bill.shopName}</td>
+                                                                <td className="px-6 py-3 text-sm">{bill.projectName}</td>
+                                                                <td className="px-6 py-3 text-sm text-gray-500">{bill.description || '-'}</td>
+                                                                <td className="px-6 py-3 text-sm font-medium">LKR {Number(bill.totalAmount).toLocaleString()}</td>
+                                                                <td className="px-6 py-3 text-sm font-medium text-green-600">LKR {Number(bill.settledAmount || 0).toLocaleString()}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </Table>
+                                                </div>
+                                            )}
+
+                                            {dateCommonPays.length > 0 && (
+                                                <div className="overflow-x-auto">
+                                                    <h4 className="font-semibold text-gray-700 mb-2 border-b pb-1 flex items-center">
+                                                        <DollarSign className="h-4 w-4 mr-2" />
+                                                        Common Pays
+                                                    </h4>
+                                                    <Table headers={['Shop', 'Amount', 'Description']}>
+                                                        {dateCommonPays.map(cp => (
+                                                            <tr key={`cp-${cp.id}`} className="print:break-inside-avoid">
+                                                                <td className="px-6 py-3 text-sm font-medium">{cp.shopName}</td>
+                                                                <td className="px-6 py-3 text-sm font-medium text-blue-600">LKR {Number(cp.amount).toLocaleString()}</td>
+                                                                <td className="px-6 py-3 text-sm text-gray-500">{cp.description || '-'}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </Table>
+                                                </div>
+                                            )}
+
+                                            {dateProjects.length > 0 && (
+                                                <div className="overflow-x-auto">
+                                                    <h4 className="font-semibold text-gray-700 mb-2 border-b pb-1 flex items-center">
+                                                        <TrendingUp className="h-4 w-4 mr-2" />
+                                                        Projects Started
+                                                    </h4>
+                                                    <Table headers={['Project', 'Client', 'Description', 'Value']}>
+                                                        {dateProjects.map(project => (
+                                                            <tr key={`proj-${project.id}`} className="print:break-inside-avoid">
+                                                                <td className="px-6 py-3 text-sm font-medium">{project.projectName}</td>
+                                                                <td className="px-6 py-3 text-sm">{project.clientName}</td>
+                                                                <td className="px-6 py-3 text-sm text-gray-500">{project.description || '-'}</td>
+                                                                <td className="px-6 py-3 text-sm font-medium">LKR {Number(project.totalProjectValue).toLocaleString()}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </Table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </Card>
+                            );
+                        })}
+
+                        {allHistoryDates.length === 0 && (
+                            <div className="text-center py-12 bg-white rounded-lg border border-dashed border-gray-300 print:hidden">
+                                <History className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                                <p className="text-gray-500 text-lg">No history found for the selected date range.</p>
+                                <p className="text-gray-400 text-sm mt-1">Try adjusting your date filters above.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
