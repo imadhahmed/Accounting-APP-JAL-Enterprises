@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, collection, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { ArrowLeft, Plus, Calendar, TrendingUp, TrendingDown, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Calendar, TrendingUp, TrendingDown, Edit, Trash2, AlertTriangle, Briefcase } from 'lucide-react';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Badge from '../../components/UI/Badge';
@@ -13,6 +13,7 @@ import { addCredit, addExpense, deleteProject, updateCredit, deleteCredit, updat
 import EditProjectModal from './EditProjectModal';
 import EditCreditModal from './EditCreditModal';
 import EditExpenseModal from './EditExpenseModal';
+import SubcontractsSection from './subcontracts/SubcontractsSection';
 
 export default function ProjectDetails() {
     const { id } = useParams();
@@ -21,6 +22,8 @@ export default function ProjectDetails() {
     const [loading, setLoading] = useState(true);
     const [credits, setCredits] = useState([]);
     const [expenses, setExpenses] = useState([]);
+    const [activeTab, setActiveTab] = useState('finances'); // 'finances' or 'subcontracts'
+    const [subcontractCount, setSubcontractCount] = useState(0);
 
     // Modal states
     const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
@@ -70,10 +73,16 @@ export default function ProjectDetails() {
             setExpenses(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
 
+        const subcontractsQuery = query(collection(db, 'projects', id, 'subcontracts'));
+        const subcontractsUnsub = onSnapshot(subcontractsQuery, (snapshot) => {
+            setSubcontractCount(snapshot.size);
+        });
+
         return () => {
             projectUnsub();
             creditsUnsub();
             expensesUnsub();
+            subcontractsUnsub();
         };
     }, [id, navigate]);
 
@@ -213,101 +222,142 @@ export default function ProjectDetails() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Credits Section */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                            <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
-                            Credited History
-                        </h2>
-                        <Button size="sm" onClick={() => setIsCreditModalOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" /> Add Credit
-                        </Button>
-                    </div>
-                    <Card className="p-0 overflow-hidden">
-                        <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
-                            {credits.map((credit) => (
-                                <tr key={credit.id}>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(credit.date).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {credit.description || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">
-                                        LKR {Number(credit.amount).toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        <div className="flex space-x-2">
-                                            <button onClick={() => setEditingCredit(credit)} className="text-blue-600 hover:text-blue-800">
-                                                <Edit className="h-4 w-4" />
-                                            </button>
-                                            <button onClick={() => handleDeleteCredit(credit.id, credit.amount)} className="text-red-600 hover:text-red-800">
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {credits.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
-                                        No credits recorded yet.
-                                    </td>
-                                </tr>
-                            )}
-                        </Table>
-                    </Card>
-                </div>
-
-                {/* Expenses Section */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                            <TrendingDown className="h-5 w-5 text-red-500 mr-2" />
-                            Expense History
-                        </h2>
-                        <Button size="sm" onClick={() => setIsExpenseModalOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" /> Add Expense
-                        </Button>
-                    </div>
-                    <Card className="p-0 overflow-hidden">
-                        <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
-                            {expenses.map((expense) => (
-                                <tr key={expense.id}>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(expense.date).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {expense.description}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-red-600">
-                                        LKR {Number(expense.amount).toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        <div className="flex space-x-2">
-                                            <button onClick={() => setEditingExpense(expense)} className="text-blue-600 hover:text-blue-800">
-                                                <Edit className="h-4 w-4" />
-                                            </button>
-                                            <button onClick={() => handleDeleteExpense(expense.id, expense.amount)} className="text-red-600 hover:text-red-800">
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {expenses.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
-                                        No expenses recorded yet.
-                                    </td>
-                                </tr>
-                            )}
-                        </Table>
-                    </Card>
-                </div>
+            {/* Navigation Tabs */}
+            <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                    <button
+                        onClick={() => setActiveTab('finances')}
+                        className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors ${
+                            activeTab === 'finances'
+                                ? 'border-primary-600 text-primary-600 font-semibold'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Direct Finances & Expenses
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('subcontracts')}
+                        className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors ${
+                            activeTab === 'subcontracts'
+                                ? 'border-primary-600 text-primary-600 font-semibold'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        Subcontracts & Accounts
+                        <span className={`ml-2 py-0.5 px-2 rounded-full text-xs font-semibold ${
+                            activeTab === 'subcontracts' ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700'
+                        }`}>
+                            {subcontractCount}
+                        </span>
+                    </button>
+                </nav>
             </div>
+
+            {/* Tab 1: Direct Finances */}
+            {activeTab === 'finances' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Credits Section */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-medium text-gray-900 flex items-center">
+                                <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
+                                Credited History
+                            </h2>
+                            <Button size="sm" onClick={() => setIsCreditModalOpen(true)}>
+                                <Plus className="h-4 w-4 mr-1" /> Add Credit
+                            </Button>
+                        </div>
+                        <Card className="p-0 overflow-hidden">
+                            <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
+                                {credits.map((credit) => (
+                                    <tr key={credit.id}>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            {new Date(credit.date).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            {credit.description || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-green-600">
+                                            LKR {Number(credit.amount).toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            <div className="flex space-x-2">
+                                                <button onClick={() => setEditingCredit(credit)} className="text-blue-600 hover:text-blue-800">
+                                                    <Edit className="h-4 w-4" />
+                                                </button>
+                                                <button onClick={() => handleDeleteCredit(credit.id, credit.amount)} className="text-red-600 hover:text-red-800">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {credits.length === 0 && (
+                                    <tr>
+                                        <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                            No credits recorded yet.
+                                        </td>
+                                    </tr>
+                                )}
+                            </Table>
+                        </Card>
+                    </div>
+
+                    {/* Expenses Section */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-medium text-gray-900 flex items-center">
+                                <TrendingDown className="h-5 w-5 text-red-500 mr-2" />
+                                Expense History
+                            </h2>
+                            <Button size="sm" onClick={() => setIsExpenseModalOpen(true)}>
+                                <Plus className="h-4 w-4 mr-1" /> Add Expense
+                            </Button>
+                        </div>
+                        <Card className="p-0 overflow-hidden">
+                            <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
+                                {expenses.map((expense) => (
+                                    <tr key={expense.id}>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            {new Date(expense.date).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            {expense.description}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-red-600">
+                                            LKR {Number(expense.amount).toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            <div className="flex space-x-2">
+                                                <button onClick={() => setEditingExpense(expense)} className="text-blue-600 hover:text-blue-800">
+                                                    <Edit className="h-4 w-4" />
+                                                </button>
+                                                <button onClick={() => handleDeleteExpense(expense.id, expense.amount)} className="text-red-600 hover:text-red-800">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {expenses.length === 0 && (
+                                    <tr>
+                                        <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                            No expenses recorded yet.
+                                        </td>
+                                    </tr>
+                                )}
+                            </Table>
+                        </Card>
+                    </div>
+                </div>
+            )}
+
+            {/* Tab 2: Subcontracts & Accounts */}
+            {activeTab === 'subcontracts' && (
+                <SubcontractsSection projectId={id} projectName={project.name} />
+            )}
 
             {/* Add Credit Modal */}
             <Modal

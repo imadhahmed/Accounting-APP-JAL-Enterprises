@@ -63,7 +63,7 @@ import { increment } from 'firebase/firestore';
 
 export const addCredit = async (projectId, amount, date, description = '') => {
     const creditRef = collection(db, PROJECTS_COLLECTION, projectId, 'credits');
-    await addDoc(creditRef, {
+    const docRef = await addDoc(creditRef, {
         amount: Number(amount),
         date: date,
         description: description,
@@ -73,16 +73,14 @@ export const addCredit = async (projectId, amount, date, description = '') => {
     const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
     await updateDoc(projectRef, {
         credits: increment(Number(amount)),
-        // balance: credits - expenses. We can't easily calc balance with increment alone if we don't store it separate or use listeners.
-        // Better to store 'creditsTotal' and 'expensesTotal'.
-        // Let's use 'totalCredited' and 'totalExpenses'.
         totalCredited: increment(Number(amount))
     });
+    return docRef;
 };
 
 export const addExpense = async (projectId, amount, date, description) => {
     const expenseRef = collection(db, PROJECTS_COLLECTION, projectId, 'expenses');
-    await addDoc(expenseRef, {
+    const docRef = await addDoc(expenseRef, {
         amount: Number(amount),
         date: date,
         description: description,
@@ -93,6 +91,7 @@ export const addExpense = async (projectId, amount, date, description) => {
     await updateDoc(projectRef, {
         totalExpenses: increment(Number(amount))
     });
+    return docRef;
 };
 
 // Shop Billing
@@ -262,4 +261,132 @@ export const addCommonPay = async (shopName, amount, date, description = '') => 
 export const deleteCommonPay = async (commonPayId) => {
     await deleteDoc(doc(db, COMMON_PAYS_COLLECTION, commonPayId));
 };
+
+// ==========================================
+// Subcontracts & Subcontract Accounts Management
+// ==========================================
+
+export const getSubcontracts = (projectId) => {
+    return query(collection(db, PROJECTS_COLLECTION, projectId, 'subcontracts'), orderBy('createdAt', 'desc'));
+};
+
+export const addSubcontract = async (projectId, data) => {
+    const subRef = collection(db, PROJECTS_COLLECTION, projectId, 'subcontracts');
+    return await addDoc(subRef, {
+        ...data,
+        contractAmount: Number(data.contractAmount || 0),
+        totalPaid: 0,
+        status: data.status || 'active',
+        createdAt: new Date().toISOString()
+    });
+};
+
+export const updateSubcontract = async (projectId, subcontractId, data) => {
+    const subDocRef = doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId);
+    const updateData = { ...data };
+    if (updateData.contractAmount !== undefined) {
+        updateData.contractAmount = Number(updateData.contractAmount);
+    }
+    await updateDoc(subDocRef, updateData);
+};
+
+export const deleteSubcontract = async (projectId, subcontractId) => {
+    const paymentsRef = collection(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments');
+    const paymentsSnapshot = await getDocs(paymentsRef);
+    for (const paymentDoc of paymentsSnapshot.docs) {
+        const paymentData = paymentDoc.data();
+        if (paymentData.syncedExpenseId) {
+            try {
+                await deleteExpense(projectId, paymentData.syncedExpenseId, paymentData.amount);
+            } catch (err) {
+                console.error("Error deleting linked expense:", err);
+            }
+        }
+        await deleteDoc(doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments', paymentDoc.id));
+    }
+    await deleteDoc(doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId));
+};
+
+export const getSubcontractPayments = (projectId, subcontractId) => {
+    return query(
+        collection(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments'),
+        orderBy('date', 'desc')
+    );
+};
+
+export const addSubcontractPayment = async (projectId, subcontractId, paymentData, contractorName = '', syncWithExpenses = true) => {
+    const amount = Number(paymentData.amount);
+    let syncedExpenseId = null;
+
+    if (syncWithExpenses) {
+        const expenseDesc = `Subcontract Pay: ${contractorName || 'Subcontractor'}${paymentData.notes ? ` - ${paymentData.notes}` : ''} (${paymentData.paymentMethod || 'Payment'})`;
+        const expenseDoc = await addExpense(projectId, amount, paymentData.date, expenseDesc);
+        if (expenseDoc && expenseDoc.id) {
+            syncedExpenseId = expenseDoc.id;
+        }
+    }
+
+    const paymentRef = collection(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments');
+    const newPaymentDoc = await addDoc(paymentRef, {
+        amount,
+        date: paymentData.date,
+        paymentMethod: paymentData.paymentMethod || 'Cash',
+        referenceNo: paymentData.referenceNo || '',
+        notes: paymentData.notes || '',
+        syncedExpenseId,
+        createdAt: new Date().toISOString()
+    });
+
+    const subDocRef = doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId);
+    await updateDoc(subDocRef, {
+        totalPaid: increment(amount)
+    });
+
+    return newPaymentDoc;
+};
+
+export const updateSubcontractPayment = async (projectId, subcontractId, paymentId, oldAmount, newPaymentData, contractorName = '') => {
+    const newAmount = Number(newPaymentData.amount);
+    const oldAmt = Number(oldAmount);
+    const paymentDocRef = doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments', paymentId);
+
+    if (newPaymentData.syncedExpenseId) {
+        const expenseDesc = `Subcontract Pay: ${contractorName || 'Subcontractor'}${newPaymentData.notes ? ` - ${newPaymentData.notes}` : ''} (${newPaymentData.paymentMethod || 'Payment'})`;
+        await updateExpense(projectId, newPaymentData.syncedExpenseId, oldAmt, newAmount, newPaymentData.date, expenseDesc);
+    }
+
+    await updateDoc(paymentDocRef, {
+        amount: newAmount,
+        date: newPaymentData.date,
+        paymentMethod: newPaymentData.paymentMethod || 'Cash',
+        referenceNo: newPaymentData.referenceNo || '',
+        notes: newPaymentData.notes || ''
+    });
+
+    if (newAmount !== oldAmt) {
+        const diff = newAmount - oldAmt;
+        const subDocRef = doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId);
+        await updateDoc(subDocRef, {
+            totalPaid: increment(diff)
+        });
+    }
+};
+
+export const deleteSubcontractPayment = async (projectId, subcontractId, paymentId, amount, syncedExpenseId) => {
+    if (syncedExpenseId) {
+        try {
+            await deleteExpense(projectId, syncedExpenseId, amount);
+        } catch (err) {
+            console.error("Error deleting synced expense:", err);
+        }
+    }
+
+    await deleteDoc(doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId, 'payments', paymentId));
+
+    const subDocRef = doc(db, PROJECTS_COLLECTION, projectId, 'subcontracts', subcontractId);
+    await updateDoc(subDocRef, {
+        totalPaid: increment(-Number(amount))
+    });
+};
+
 
