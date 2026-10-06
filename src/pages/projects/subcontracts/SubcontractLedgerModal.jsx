@@ -309,10 +309,10 @@ export default function SubcontractLedgerModal({
         >
             <div className="space-y-6">
                 {/* Header Information Bar */}
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                            <h2 className="text-xl font-bold text-gray-900">{subcontract.contractorName}</h2>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+                    <div className="space-y-1.5 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 break-words">{subcontract.contractorName}</h2>
                             <Badge variant={subcontract.status === 'completed' ? 'green' : subcontract.status === 'on_hold' ? 'yellow' : 'blue'}>
                                 {subcontract.trade || 'Trade'}
                             </Badge>
@@ -328,10 +328,10 @@ export default function SubcontractLedgerModal({
                                 </span>
                             )}
                             {subcontract.phone && (
-                                <span className="flex items-center">
-                                    <Phone className="h-3.5 w-3.5 mr-1 text-gray-400" />
+                                <a href={`tel:${subcontract.phone}`} className="flex items-center text-primary-600 hover:text-primary-700 font-medium">
+                                    <Phone className="h-3.5 w-3.5 mr-1 text-primary-500" />
                                     {subcontract.phone}
-                                </span>
+                                </a>
                             )}
                             {subcontract.startDate && (
                                 <span className="flex items-center">
@@ -353,13 +353,14 @@ export default function SubcontractLedgerModal({
                         )}
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                        <Button variant="secondary" size="sm" onClick={handlePrintStatement}>
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <Button variant="secondary" size="sm" onClick={handlePrintStatement} className="flex-1 sm:flex-none">
                             <Printer className="h-4 w-4 mr-1.5" />
                             Print Statement
                         </Button>
                         <Button
                             size="sm"
+                            className="flex-1 sm:flex-none"
                             onClick={() => {
                                 setIsAddPaymentOpen(!isAddPaymentOpen);
                                 setError('');
@@ -620,7 +621,7 @@ export default function SubcontractLedgerModal({
                         </span>
                     </div>
 
-                    <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                    <div className="w-full border border-gray-200 rounded-xl overflow-x-auto touch-scroll shadow-xs">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>

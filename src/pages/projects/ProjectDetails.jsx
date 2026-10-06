@@ -146,53 +146,54 @@ export default function ProjectDetails() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-                <Button variant="ghost" onClick={() => navigate('/projects')} className="p-2">
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-                            <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>Due: {new Date(project.deliveryDate).toLocaleDateString()}</span>
-                                <Badge variant={project.totalCredited >= project.value ? 'green' : 'blue'}>
-                                    {project.totalCredited >= project.value ? 'Completed' : 'In Progress'}
-                                </Badge>
-                            </div>
-                        </div>
-                        <div className="flex space-x-2">
-                            <Button variant="secondary" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                                <Edit className="h-4 w-4 mr-1" /> Edit
-                            </Button>
-                            <Button variant="danger" size="sm" onClick={() => setIsDeleteModalOpen(true)}>
-                                <Trash2 className="h-4 w-4 mr-1" /> Delete
-                            </Button>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start space-x-3">
+                    <Button variant="ghost" onClick={() => navigate('/projects')} className="p-2 -ml-1 mt-0.5">
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{project.name}</h1>
+                        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mt-1">
+                            <span className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                Due: {new Date(project.deliveryDate).toLocaleDateString()}
+                            </span>
+                            <Badge variant={project.totalCredited >= project.value ? 'green' : 'blue'}>
+                                {project.totalCredited >= project.value ? 'Completed' : 'In Progress'}
+                            </Badge>
                         </div>
                     </div>
                 </div>
+                <div className="flex items-center space-x-2 w-full sm:w-auto">
+                    <Button variant="secondary" size="sm" onClick={() => setIsEditModalOpen(true)} className="flex-1 sm:flex-none">
+                        <Edit className="h-4 w-4 mr-1" /> Edit
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={() => setIsDeleteModalOpen(true)} className="flex-1 sm:flex-none">
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    </Button>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Project Information</h3>
-                    <div className="space-y-3">
-                        <div>
-                            <span className="text-sm font-medium text-gray-500">Client Name:</span>
-                            <span className="ml-2 text-sm text-gray-900">{project.clientName || 'N/A'}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <Card className="p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Project Information</h3>
+                    <div className="space-y-2.5 sm:space-y-3">
+                        <div className="text-sm">
+                            <span className="font-medium text-gray-500">Client Name:</span>
+                            <span className="ml-2 text-gray-900 font-medium">{project.clientName || 'N/A'}</span>
                         </div>
-                        <div>
-                            <span className="text-sm font-medium text-gray-500">Phone:</span>
-                            <span className="ml-2 text-sm text-gray-900">{project.clientPhone || 'N/A'}</span>
+                        <div className="text-sm">
+                            <span className="font-medium text-gray-500">Phone:</span>
+                            <span className="ml-2 text-gray-900">{project.clientPhone || 'N/A'}</span>
                         </div>
-                        <div>
-                            <span className="text-sm font-medium text-gray-500">Location:</span>
-                            <span className="ml-2 text-sm text-gray-900">{project.location || 'N/A'}</span>
+                        <div className="text-sm">
+                            <span className="font-medium text-gray-500">Location:</span>
+                            <span className="ml-2 text-gray-900">{project.location || 'N/A'}</span>
                         </div>
                         <div>
                             <span className="text-sm font-medium text-gray-500 block mb-1">Description:</span>
-                            <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[60px]">
+                            <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[50px]">
                                 {project.description || 'No description provided.'}
                             </p>
                         </div>
@@ -200,22 +201,22 @@ export default function ProjectDetails() {
                 </Card>
 
                 {/* Financial Summary */}
-                <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-blue-50 border-blue-100">
-                        <p className="text-sm font-medium text-blue-600">Project Value</p>
-                        <p className="text-2xl font-bold text-blue-900 mt-1">LKR {Number(project.value).toLocaleString()}</p>
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                    <Card className="bg-blue-50 border-blue-100 p-3.5 sm:p-5">
+                        <p className="text-xs sm:text-sm font-medium text-blue-600 truncate">Project Value</p>
+                        <p className="text-lg sm:text-2xl font-bold text-blue-900 mt-1 truncate">LKR {Number(project.value).toLocaleString()}</p>
                     </Card>
-                    <Card className="bg-green-50 border-green-100">
-                        <p className="text-sm font-medium text-green-600">Total Credited</p>
-                        <p className="text-2xl font-bold text-green-900 mt-1">LKR {(project.totalCredited || 0).toLocaleString()}</p>
+                    <Card className="bg-green-50 border-green-100 p-3.5 sm:p-5">
+                        <p className="text-xs sm:text-sm font-medium text-green-600 truncate">Total Credited</p>
+                        <p className="text-lg sm:text-2xl font-bold text-green-900 mt-1 truncate">LKR {(project.totalCredited || 0).toLocaleString()}</p>
                     </Card>
-                    <Card className="bg-red-50 border-red-100">
-                        <p className="text-sm font-medium text-red-600">Total Expenses</p>
-                        <p className="text-2xl font-bold text-red-900 mt-1">LKR {(project.totalExpenses || 0).toLocaleString()}</p>
+                    <Card className="bg-red-50 border-red-100 p-3.5 sm:p-5">
+                        <p className="text-xs sm:text-sm font-medium text-red-600 truncate">Total Expenses</p>
+                        <p className="text-lg sm:text-2xl font-bold text-red-900 mt-1 truncate">LKR {(project.totalExpenses || 0).toLocaleString()}</p>
                     </Card>
-                    <Card className="bg-purple-50 border-purple-100">
-                        <p className="text-sm font-medium text-purple-600">Available Balance</p>
-                        <p className={`text-2xl font-bold mt-1 ${(project.totalCredited - project.totalExpenses) < 0 ? 'text-red-900' : 'text-purple-900'}`}>
+                    <Card className="bg-purple-50 border-purple-100 p-3.5 sm:p-5">
+                        <p className="text-xs sm:text-sm font-medium text-purple-600 truncate">Available Balance</p>
+                        <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${(project.totalCredited - project.totalExpenses) < 0 ? 'text-red-900' : 'text-purple-900'}`}>
                             LKR {((project.totalCredited || 0) - (project.totalExpenses || 0)).toLocaleString()}
                         </p>
                     </Card>
@@ -223,8 +224,8 @@ export default function ProjectDetails() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
+            <div className="border-b border-gray-200 overflow-x-auto touch-scroll no-scrollbar">
+                <nav className="-mb-px flex space-x-6 sm:space-x-8 whitespace-nowrap min-w-max">
                     <button
                         onClick={() => setActiveTab('finances')}
                         className={`py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors ${
@@ -269,25 +270,25 @@ export default function ProjectDetails() {
                                 <Plus className="h-4 w-4 mr-1" /> Add Credit
                             </Button>
                         </div>
-                        <Card className="p-0 overflow-hidden">
+                        <Card className="p-0 overflow-hidden shadow-xs border border-gray-200">
                             <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
                                 {credits.map((credit) => (
-                                    <tr key={credit.id}>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                    <tr key={credit.id} className="hover:bg-gray-50/70 transition-colors">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                                             {new Date(credit.date).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                        <td className="px-3 sm:px-6 py-3 text-sm text-gray-900 min-w-[120px]">
                                             {credit.description || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-green-600">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm font-semibold text-green-600">
                                             LKR {Number(credit.amount).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            <div className="flex space-x-2">
-                                                <button onClick={() => setEditingCredit(credit)} className="text-blue-600 hover:text-blue-800">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center space-x-1">
+                                                <button onClick={() => setEditingCredit(credit)} className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded touch-manipulation" title="Edit credit">
                                                     <Edit className="h-4 w-4" />
                                                 </button>
-                                                <button onClick={() => handleDeleteCredit(credit.id, credit.amount)} className="text-red-600 hover:text-red-800">
+                                                <button onClick={() => handleDeleteCredit(credit.id, credit.amount)} className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded touch-manipulation" title="Delete credit">
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
@@ -296,7 +297,7 @@ export default function ProjectDetails() {
                                 ))}
                                 {credits.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan="4" className="px-4 py-8 text-center text-sm text-gray-500">
                                             No credits recorded yet.
                                         </td>
                                     </tr>
@@ -308,7 +309,7 @@ export default function ProjectDetails() {
                     {/* Expenses Section */}
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-medium text-gray-900 flex items-center">
+                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                                 <TrendingDown className="h-5 w-5 text-red-500 mr-2" />
                                 Expense History
                             </h2>
@@ -316,25 +317,25 @@ export default function ProjectDetails() {
                                 <Plus className="h-4 w-4 mr-1" /> Add Expense
                             </Button>
                         </div>
-                        <Card className="p-0 overflow-hidden">
+                        <Card className="p-0 overflow-hidden shadow-xs border border-gray-200">
                             <Table headers={['Date', 'Description', 'Amount', 'Actions']}>
                                 {expenses.map((expense) => (
-                                    <tr key={expense.id}>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                    <tr key={expense.id} className="hover:bg-gray-50/70 transition-colors">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500">
                                             {new Date(expense.date).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                        <td className="px-3 sm:px-6 py-3 text-sm text-gray-900 min-w-[120px]">
                                             {expense.description}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-red-600">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm font-semibold text-red-600">
                                             LKR {Number(expense.amount).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            <div className="flex space-x-2">
-                                                <button onClick={() => setEditingExpense(expense)} className="text-blue-600 hover:text-blue-800">
+                                        <td className="px-3 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center space-x-1">
+                                                <button onClick={() => setEditingExpense(expense)} className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded touch-manipulation" title="Edit expense">
                                                     <Edit className="h-4 w-4" />
                                                 </button>
-                                                <button onClick={() => handleDeleteExpense(expense.id, expense.amount)} className="text-red-600 hover:text-red-800">
+                                                <button onClick={() => handleDeleteExpense(expense.id, expense.amount)} className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded touch-manipulation" title="Delete expense">
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
@@ -343,7 +344,7 @@ export default function ProjectDetails() {
                                 ))}
                                 {expenses.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan="4" className="px-4 py-8 text-center text-sm text-gray-500">
                                             No expenses recorded yet.
                                         </td>
                                     </tr>

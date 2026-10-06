@@ -1,29 +1,25 @@
 export default function Table({ headers, children }) {
     return (
-        <div className="flex flex-col">
-            <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    {headers.map((header, index) => (
-                                        <th
-                                            key={index}
-                                            scope="col"
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {children}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div className="w-full overflow-x-auto touch-scroll">
+            <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full divide-y divide-gray-200 text-left">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            {headers.map((header, index) => (
+                                <th
+                                    key={index}
+                                    scope="col"
+                                    className="px-3 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    {header}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                        {children}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

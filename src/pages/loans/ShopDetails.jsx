@@ -101,14 +101,15 @@ export default function ShopDetails() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-                <Button variant="ghost" onClick={() => navigate('/loans')} className="p-2">
+            {/* Header */}
+            <div className="flex items-start space-x-3">
+                <Button variant="ghost" onClick={() => navigate('/loans')} className="p-2 mt-1 flex-shrink-0">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{decodedShopName}</h1>
+                <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div className="min-w-0">
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{decodedShopName}</h1>
                             <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
                                 <span>{bills.length} Records</span>
                                 <span>•</span>
@@ -117,13 +118,13 @@ export default function ShopDetails() {
                                 </Badge>
                             </div>
                         </div>
-                        <div className="flex space-x-2">
-                            <Button variant="secondary" onClick={() => setIsAddCommonPayModalOpen(true)}>
-                                <Plus className="h-5 w-5 mr-2" />
-                                Add Common Pay
+                        <div className="flex flex-wrap gap-2 flex-shrink-0">
+                            <Button variant="secondary" size="sm" onClick={() => setIsAddCommonPayModalOpen(true)}>
+                                <Plus className="h-4 w-4 mr-1.5" />
+                                Common Pay
                             </Button>
-                            <Button onClick={() => setIsAddLoanModalOpen(true)}>
-                                <Plus className="h-5 w-5 mr-2" />
+                            <Button size="sm" onClick={() => setIsAddLoanModalOpen(true)}>
+                                <Plus className="h-4 w-4 mr-1.5" />
                                 Add Record
                             </Button>
                         </div>
@@ -131,7 +132,7 @@ export default function ShopDetails() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                 <Card className="bg-white border-blue-100 border-l-4 border-l-blue-500">
                     <div className="flex items-center justify-between">
                         <div>
@@ -180,83 +181,113 @@ export default function ShopDetails() {
                     </div>
                 </Card>
             </div>
-
             <div className="space-y-4">
-                <h2 className="text-lg font-medium text-gray-900">Loan & Settlement Records</h2>
-                <Card className="p-0 overflow-hidden">
-                    <Table headers={['Date', 'Bill Number', 'Project', 'Description', 'Bill Amount', 'Settled', 'Balance', 'Action']}>
-                        {bills.map((bill) => {
-                            const billTotal = Number(bill.totalAmount || 0);
-                            const billSettled = Number(bill.settledAmount || 0);
-                            const billBalance = billTotal - billSettled;
-                            const billPaid = billBalance <= 0;
+                <h2 className="text-lg font-medium text-gray-900">Loan &amp; Settlement Records</h2>
 
-                            return (
-                                <tr key={bill.id}>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(bill.date).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        #{bill.billNumber}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {bill.projectName}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {bill.description || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        LKR {billTotal.toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">
-                                        LKR {billSettled.toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-red-600">
-                                        LKR {billBalance.toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm">
-                                        <div className="flex items-center space-x-2">
-                                            {!billPaid ? (
-                                                <Button size="sm" variant="secondary" onClick={() => setSettlementBillId(bill.id)}>
-                                                    Pay
-                                                </Button>
-                                            ) : (
-                                                <Badge variant="green">Clear</Badge>
-                                            )}
-                                            <button
-                                                onClick={() => setViewSettlementsBillId(bill.id)}
-                                                className="text-purple-600 hover:text-purple-900 bg-purple-50 p-1.5 rounded transition-colors"
-                                                title="View Settlements"
-                                            >
-                                                <Clock className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => setEditBillData(bill)}
-                                                className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded transition-colors"
-                                                title="Edit Bill"
-                                            >
-                                                <Edit className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteBill(bill.id)}
-                                                className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors"
-                                                title="Delete Bill"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
+                {/* Mobile card view */}
+                <div className="md:hidden space-y-3">
+                    {bills.length === 0 && (
+                        <Card>
+                            <p className="text-center text-sm text-gray-500 py-4">No records found for this shop.</p>
+                        </Card>
+                    )}
+                    {bills.map((bill) => {
+                        const billTotal = Number(bill.totalAmount || 0);
+                        const billSettled = Number(bill.settledAmount || 0);
+                        const billBalance = billTotal - billSettled;
+                        const billPaid = billBalance <= 0;
+                        return (
+                            <Card key={bill.id} className="p-4">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p className="font-semibold text-gray-900">#{bill.billNumber}</p>
+                                        <p className="text-xs text-gray-500">{new Date(bill.date).toLocaleDateString()}</p>
+                                        {bill.projectName && <p className="text-xs text-gray-500 mt-0.5">{bill.projectName}</p>}
+                                    </div>
+                                    <Badge variant={billPaid ? 'green' : 'red'}>{billPaid ? 'Clear' : 'Unpaid'}</Badge>
+                                </div>
+                                {bill.description && <p className="text-sm text-gray-500 mb-3 text-xs italic">{bill.description}</p>}
+                                <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 rounded-lg p-2 mb-3">
+                                    <div>
+                                        <p className="text-xs text-gray-500">Billed</p>
+                                        <p className="text-sm font-semibold text-gray-900">LKR {billTotal.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">Settled</p>
+                                        <p className="text-sm font-semibold text-green-600">LKR {billSettled.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">Balance</p>
+                                        <p className="text-sm font-semibold text-red-600">LKR {billBalance.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {!billPaid && (
+                                        <Button size="sm" variant="secondary" className="flex-1" onClick={() => setSettlementBillId(bill.id)}>
+                                            Pay
+                                        </Button>
+                                    )}
+                                    <button onClick={() => setViewSettlementsBillId(bill.id)} className="text-purple-600 hover:text-purple-900 bg-purple-50 p-2 rounded transition-colors touch-manipulation" title="View Settlements">
+                                        <Clock className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => setEditBillData(bill)} className="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded transition-colors touch-manipulation" title="Edit Bill">
+                                        <Edit className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => handleDeleteBill(bill.id)} className="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded transition-colors touch-manipulation" title="Delete Bill">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </Card>
+                        );
+                    })}
+                </div>
+
+                {/* Desktop table view */}
+                <Card className="hidden md:block p-0 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <Table headers={['Date', 'Bill Number', 'Project', 'Description', 'Bill Amount', 'Settled', 'Balance', 'Action']}>
+                            {bills.map((bill) => {
+                                const billTotal = Number(bill.totalAmount || 0);
+                                const billSettled = Number(bill.settledAmount || 0);
+                                const billBalance = billTotal - billSettled;
+                                const billPaid = billBalance <= 0;
+                                return (
+                                    <tr key={bill.id}>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{new Date(bill.date).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">#{bill.billNumber}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{bill.projectName}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{bill.description || '-'}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">LKR {billTotal.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-green-600">LKR {billSettled.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-red-600">LKR {billBalance.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm">
+                                            <div className="flex items-center space-x-2">
+                                                {!billPaid ? (
+                                                    <Button size="sm" variant="secondary" onClick={() => setSettlementBillId(bill.id)}>Pay</Button>
+                                                ) : (
+                                                    <Badge variant="green">Clear</Badge>
+                                                )}
+                                                <button onClick={() => setViewSettlementsBillId(bill.id)} className="text-purple-600 hover:text-purple-900 bg-purple-50 p-1.5 rounded transition-colors" title="View Settlements">
+                                                    <Clock className="h-4 w-4" />
+                                                </button>
+                                                <button onClick={() => setEditBillData(bill)} className="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded transition-colors" title="Edit Bill">
+                                                    <Edit className="h-4 w-4" />
+                                                </button>
+                                                <button onClick={() => handleDeleteBill(bill.id)} className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors" title="Delete Bill">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {bills.length === 0 && (
+                                <tr>
+                                    <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">No records found for this shop.</td>
                                 </tr>
-                            );
-                        })}
-                        {bills.length === 0 && (
-                            <tr>
-                                <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                                    No records found for this shop.
-                                </td>
-                            </tr>
-                        )}
-                    </Table>
+                            )}
+                        </Table>
+                    </div>
                 </Card>
             </div>
 
@@ -264,33 +295,27 @@ export default function ShopDetails() {
                 <div className="space-y-4">
                     <h2 className="text-lg font-medium text-gray-900">Common Payments</h2>
                     <Card className="p-0 overflow-hidden">
-                        <Table headers={['Date', 'Amount', 'Description', 'Action']}>
-                            {commonPays.map((pay) => (
-                                <tr key={pay.id}>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(pay.date).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-blue-600">
-                                        LKR {Number(pay.amount).toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {pay.description || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm">
-                                        <button
-                                            onClick={() => handleDeleteCommonPay(pay.id)}
-                                            className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors"
-                                            title="Delete Common Pay"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </Table>
+                        <div className="overflow-x-auto">
+                            <Table headers={['Date', 'Amount', 'Description', 'Action']}>
+                                {commonPays.map((pay) => (
+                                    <tr key={pay.id}>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{new Date(pay.date).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium text-blue-600">LKR {Number(pay.amount).toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{pay.description || '-'}</td>
+                                        <td className="px-6 py-4 text-sm">
+                                            <button onClick={() => handleDeleteCommonPay(pay.id)} className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded transition-colors touch-manipulation" title="Delete Common Pay">
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </Table>
+                        </div>
                     </Card>
                 </div>
             )}
+
+
 
             {/* Modals for Adding Loans and Settlements */}
             <AddLoanModal

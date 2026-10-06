@@ -101,7 +101,7 @@ export default function AddSubcontractModal({ isOpen, onClose, projectId }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <Input
                         id="contractor-name"
                         label="Subcontractor / Firm Name *"
@@ -121,7 +121,7 @@ export default function AddSubcontractModal({ isOpen, onClose, projectId }) {
                             placeholder="Select or type trade (e.g. Electrical)"
                             value={trade}
                             onChange={(e) => setTrade(e.target.value)}
-                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-base sm:text-sm"
                         />
                         <datalist id="trade-options">
                             {POPULAR_TRADES.map((t) => (
@@ -166,7 +166,7 @@ export default function AddSubcontractModal({ isOpen, onClose, projectId }) {
                             id="status"
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white"
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-base sm:text-sm bg-white"
                         >
                             <option value="active">Active / In Progress</option>
                             <option value="completed">Completed</option>
@@ -202,15 +202,15 @@ export default function AddSubcontractModal({ isOpen, onClose, projectId }) {
                         placeholder="Describe the agreed scope, milestones, or conditions..."
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-base sm:text-sm"
                     />
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-                    <Button variant="secondary" type="button" onClick={handleClose}>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:space-x-3 pt-4 border-t border-gray-100">
+                    <Button variant="secondary" type="button" onClick={handleClose} className="w-full sm:w-auto">
                         Cancel
                     </Button>
-                    <Button type="submit" isLoading={loading}>
+                    <Button type="submit" isLoading={loading} className="w-full sm:w-auto">
                         Create Subcontract
                     </Button>
                 </div>

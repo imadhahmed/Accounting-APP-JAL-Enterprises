@@ -102,25 +102,26 @@ export default function Reports() {
     return (
         <div className="space-y-6 print:p-0 print:space-y-4">
             {/* Header controls - Hidden on print */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 print:hidden">
+            <div className="flex flex-col gap-3 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-40"
+                        className="flex-1 min-w-[130px] max-w-[180px]"
                     />
-                    <span className="self-center text-gray-500">to</span>
+                    <span className="text-gray-500 flex-shrink-0">to</span>
                     <Input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-40"
+                        className="flex-1 min-w-[130px] max-w-[180px]"
                     />
-                    <Button onClick={handlePrint} variant="secondary">
+                    <Button onClick={handlePrint} variant="secondary" className="flex-shrink-0">
                         <Printer className="h-4 w-4 mr-2" />
-                        Print Report
+                        <span className="hidden sm:inline">Print Report</span>
+                        <span className="sm:hidden">Print</span>
                     </Button>
                 </div>
             </div>
@@ -136,31 +137,31 @@ export default function Reports() {
             </div>
 
             {/* Tabs - Hidden on print */}
-            <div className="border-b border-gray-200 print:hidden">
-                <nav className="-mb-px flex space-x-8">
+            <div className="border-b border-gray-200 print:hidden overflow-x-auto">
+                <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
                     <button
                         onClick={() => setActiveTab('projects')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'projects'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${activeTab === 'projects'
                             ? 'border-indigo-500 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         <FileText className="h-4 w-4 mr-2" />
-                        Project Reports
+                        Projects
                     </button>
                     <button
                         onClick={() => setActiveTab('billing')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'billing'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${activeTab === 'billing'
                             ? 'border-indigo-500 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         <DollarSign className="h-4 w-4 mr-2" />
-                        Billing Reports
+                        Billing
                     </button>
                     <button
                         onClick={() => setActiveTab('daily')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === 'daily'
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center whitespace-nowrap ${activeTab === 'daily'
                             ? 'border-indigo-500 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
@@ -177,7 +178,7 @@ export default function Reports() {
                     <h2 className="text-xl font-bold text-gray-900 mb-4 print:mb-2">Project Summary</h2>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Projects</p>
                             <p className="text-2xl font-bold text-gray-900">{projectStats.total}</p>
@@ -196,26 +197,28 @@ export default function Reports() {
                         </div>
                     </div>
 
-                    <Card className="print:shadow-none print:border-none print:p-0">
-                        <Table headers={['Project', 'Client', 'Value', 'Received', 'Expense', 'Status']}>
-                            {filteredProjects.map(project => (
-                                <tr key={project.id} className="print:break-inside-avoid">
-                                    <td className="px-6 py-4">
-                                        <div className="text-sm font-medium text-gray-900">{project.projectName}</div>
-                                        <div className="text-xs text-gray-500">{new Date(project.createdAt).toLocaleDateString()}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{project.clientName}</td>
-                                    <td className="px-6 py-4 text-sm font-medium">LKR {Number(project.totalProjectValue).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">LKR {Number(project.totalCredited || 0).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-red-600">LKR {Number(project.totalExpenses || 0).toLocaleString()}</td>
-                                    <td className="px-6 py-4">
-                                        <Badge variant={project.status === 'completed' ? 'success' : 'warning'}>
-                                            {project.status}
-                                        </Badge>
-                                    </td>
-                                </tr>
-                            ))}
-                        </Table>
+                    <Card className="print:shadow-none print:border-none print:p-0 p-0 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <Table headers={['Project', 'Client', 'Value', 'Received', 'Expense', 'Status']}>
+                                {filteredProjects.map(project => (
+                                    <tr key={project.id} className="print:break-inside-avoid">
+                                        <td className="px-4 py-4">
+                                            <div className="text-sm font-medium text-gray-900">{project.projectName}</div>
+                                            <div className="text-xs text-gray-500">{new Date(project.createdAt).toLocaleDateString()}</div>
+                                        </td>
+                                        <td className="px-4 py-4 text-sm text-gray-500">{project.clientName}</td>
+                                        <td className="px-4 py-4 text-sm font-medium">LKR {Number(project.totalProjectValue).toLocaleString()}</td>
+                                        <td className="px-4 py-4 text-sm font-medium text-green-600">LKR {Number(project.totalCredited || 0).toLocaleString()}</td>
+                                        <td className="px-4 py-4 text-sm font-medium text-red-600">LKR {Number(project.totalExpenses || 0).toLocaleString()}</td>
+                                        <td className="px-4 py-4">
+                                            <Badge variant={project.status === 'completed' ? 'success' : 'warning'}>
+                                                {project.status}
+                                            </Badge>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </Table>
+                        </div>
                     </Card>
                 </div>
             )}
@@ -226,7 +229,7 @@ export default function Reports() {
                     <h2 className="text-xl font-bold text-gray-900 mb-4 print:mb-2 print:mt-8">Billing Summary</h2>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6">
                         <div className="bg-white p-4 rounded-lg shadow border border-gray-200 print:border-black print:shadow-none">
                             <p className="text-sm text-gray-500">Total Bills</p>
                             <p className="text-2xl font-bold text-gray-900">{billStats.total}</p>
@@ -249,22 +252,24 @@ export default function Reports() {
                         </div>
                     </div>
 
-                    <Card className="print:shadow-none print:border-none print:p-0">
-                        <Table headers={['Bill #', 'Shop Name', 'Date', 'Project', 'Amount', 'Settled', 'Balance']}>
-                            {filteredBills.map(bill => (
-                                <tr key={bill.id} className="print:break-inside-avoid">
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">#{bill.billNumber}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">{bill.shopName}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{new Date(bill.date).toLocaleDateString()}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{bill.projectName}</td>
-                                    <td className="px-6 py-4 text-sm font-medium">LKR {Number(bill.totalAmount).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-green-600">LKR {Number(bill.settledAmount || 0).toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-red-600">
-                                        LKR {(Number(bill.totalAmount) - Number(bill.settledAmount || 0)).toLocaleString()}
-                                    </td>
-                                </tr>
-                            ))}
-                        </Table>
+                    <Card className="print:shadow-none print:border-none print:p-0 p-0 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <Table headers={['Bill #', 'Shop Name', 'Date', 'Project', 'Amount', 'Settled', 'Balance']}>
+                                {filteredBills.map(bill => (
+                                    <tr key={bill.id} className="print:break-inside-avoid">
+                                        <td className="px-4 py-4 text-sm font-medium text-gray-900">#{bill.billNumber}</td>
+                                        <td className="px-4 py-4 text-sm text-gray-900">{bill.shopName}</td>
+                                        <td className="px-4 py-4 text-sm text-gray-500">{new Date(bill.date).toLocaleDateString()}</td>
+                                        <td className="px-4 py-4 text-sm text-gray-500">{bill.projectName}</td>
+                                        <td className="px-4 py-4 text-sm font-medium">LKR {Number(bill.totalAmount).toLocaleString()}</td>
+                                        <td className="px-4 py-4 text-sm font-medium text-green-600">LKR {Number(bill.settledAmount || 0).toLocaleString()}</td>
+                                        <td className="px-4 py-4 text-sm font-medium text-red-600">
+                                            LKR {(Number(bill.totalAmount) - Number(bill.settledAmount || 0)).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </Table>
+                        </div>
                     </Card>
                 </div>
             )}
@@ -284,25 +289,27 @@ export default function Reports() {
                             return (
                                 <Card key={date} className="p-0 overflow-hidden print:shadow-none print:border-black print:mb-4">
                                     <div
-                                        className="bg-gray-50 px-6 py-4 cursor-pointer flex justify-between items-center hover:bg-gray-100 print:bg-white print:border-b print:border-black"
+                                        className="bg-gray-50 px-3 sm:px-6 py-3 sm:py-4 cursor-pointer flex justify-between items-start sm:items-center hover:bg-gray-100 print:bg-white print:border-b print:border-black"
                                         onClick={() => setExpandedDate(isExpanded ? null : date)}
                                     >
-                                        <div className="flex items-center space-x-4">
-                                            <Calendar className="h-5 w-5 text-indigo-600 print:hidden" />
-                                            <h3 className="text-lg font-bold text-gray-900">{new Date(date).toLocaleDateString()}</h3>
-                                            <div className="flex space-x-2 text-sm print:hidden">
-                                                {dateBills.length > 0 && <Badge variant="info">{dateBills.length} Bills</Badge>}
-                                                {dateCommonPays.length > 0 && <Badge variant="warning">{dateCommonPays.length} Common Pays</Badge>}
-                                                {dateProjects.length > 0 && <Badge variant="success">{dateProjects.length} Projects</Badge>}
+                                        <div className="flex items-start sm:items-center space-x-2 sm:space-x-4 min-w-0">
+                                            <Calendar className="h-5 w-5 text-indigo-600 print:hidden flex-shrink-0 mt-0.5 sm:mt-0" />
+                                            <div className="min-w-0">
+                                                <h3 className="text-base sm:text-lg font-bold text-gray-900">{new Date(date).toLocaleDateString()}</h3>
+                                                <div className="flex flex-wrap gap-1.5 mt-1 print:hidden">
+                                                    {dateBills.length > 0 && <Badge variant="info">{dateBills.length} Bills</Badge>}
+                                                    {dateCommonPays.length > 0 && <Badge variant="warning">{dateCommonPays.length} Common Pays</Badge>}
+                                                    {dateProjects.length > 0 && <Badge variant="success">{dateProjects.length} Projects</Badge>}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="text-gray-500 print:hidden">
+                                        <div className="text-gray-500 print:hidden flex-shrink-0 ml-2">
                                             {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                                         </div>
                                     </div>
 
                                     {isExpanded && (
-                                        <div className="p-6 space-y-6 bg-white shrink-0">
+                                        <div className="p-3 sm:p-6 space-y-6 bg-white shrink-0">
                                             {dateBills.length > 0 && (
                                                 <div className="overflow-x-auto">
                                                     <h4 className="font-semibold text-gray-700 mb-2 border-b pb-1 flex items-center">

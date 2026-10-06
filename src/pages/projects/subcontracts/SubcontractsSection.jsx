@@ -96,87 +96,87 @@ export default function SubcontractsSection({ projectId, projectName }) {
     return (
         <div className="space-y-6">
             {/* Top Stat Cards for Subcontracts */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100 p-3.5 sm:p-5">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider truncate">
                                 Total Subcontracts
                             </p>
-                            <p className="text-2xl font-bold text-indigo-950 mt-1">
+                            <p className="text-lg sm:text-2xl font-bold text-indigo-950 mt-1 truncate">
                                 LKR {totalContractValue.toLocaleString()}
                             </p>
                         </div>
-                        <div className="p-3 bg-indigo-100 text-indigo-700 rounded-xl">
-                            <Briefcase className="h-6 w-6" />
+                        <div className="p-2.5 sm:p-3 bg-indigo-100 text-indigo-700 rounded-xl ml-3 flex-shrink-0">
+                            <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                     </div>
-                    <p className="text-xs text-indigo-600 mt-2">
+                    <p className="text-xs text-indigo-600 mt-2 truncate">
                         {subcontracts.length} Subcontract{subcontracts.length === 1 ? '' : 's'} committed
                     </p>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-100">
+                <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-100 p-3.5 sm:p-5">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider truncate">
                                 Total Settled / Paid
                             </p>
-                            <p className="text-2xl font-bold text-emerald-950 mt-1">
+                            <p className="text-lg sm:text-2xl font-bold text-emerald-950 mt-1 truncate">
                                 LKR {totalPaid.toLocaleString()}
                             </p>
                         </div>
-                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
-                            <CheckCircle2 className="h-6 w-6" />
+                        <div className="p-2.5 sm:p-3 bg-emerald-100 text-emerald-700 rounded-xl ml-3 flex-shrink-0">
+                            <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                     </div>
-                    <p className="text-xs text-emerald-600 mt-2">
+                    <p className="text-xs text-emerald-600 mt-2 truncate">
                         {totalContractValue > 0 ? Math.round((totalPaid / totalContractValue) * 100) : 0}% of contracts paid
                     </p>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100">
+                <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100 p-3.5 sm:p-5">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider truncate">
                                 Outstanding Payable
                             </p>
-                            <p className="text-2xl font-bold text-amber-950 mt-1">
+                            <p className="text-lg sm:text-2xl font-bold text-amber-950 mt-1 truncate">
                                 LKR {totalOutstanding.toLocaleString()}
                             </p>
                         </div>
-                        <div className="p-3 bg-amber-100 text-amber-700 rounded-xl">
-                            <Clock className="h-6 w-6" />
+                        <div className="p-2.5 sm:p-3 bg-amber-100 text-amber-700 rounded-xl ml-3 flex-shrink-0">
+                            <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                     </div>
-                    <p className="text-xs text-amber-700 mt-2">
+                    <p className="text-xs text-amber-700 mt-2 truncate">
                         Remaining balance across trades
                     </p>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
+                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100 p-3.5 sm:p-5">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider truncate">
                                 Active Subcontractors
                             </p>
-                            <p className="text-2xl font-bold text-purple-950 mt-1">
-                                {activeCount} <span className="text-sm font-normal text-purple-700">/ {subcontracts.length}</span>
+                            <p className="text-lg sm:text-2xl font-bold text-purple-950 mt-1 truncate">
+                                {activeCount} <span className="text-xs sm:text-sm font-normal text-purple-700">/ {subcontracts.length}</span>
                             </p>
                         </div>
-                        <div className="p-3 bg-purple-100 text-purple-700 rounded-xl">
-                            <Building2 className="h-6 w-6" />
+                        <div className="p-2.5 sm:p-3 bg-purple-100 text-purple-700 rounded-xl ml-3 flex-shrink-0">
+                            <Building2 className="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                     </div>
-                    <p className="text-xs text-purple-600 mt-2">
+                    <p className="text-xs text-purple-600 mt-2 truncate">
                         Ongoing on-site subcontractors
                     </p>
                 </Card>
             </div>
 
             {/* Filter & Action Toolbar */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="flex flex-wrap items-center gap-2 flex-1 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
                     <div className="relative flex-1 sm:max-w-xs">
                         <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                         <input
@@ -184,15 +184,15 @@ export default function SubcontractsSection({ projectId, projectName }) {
                             placeholder="Search contractor, trade..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white"
+                            className="w-full pl-9 pr-3 py-2 text-base sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white"
                         />
                     </div>
 
-                    <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg text-xs">
+                    <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg text-xs overflow-x-auto touch-scroll no-scrollbar">
                         <button
                             onClick={() => setStatusFilter('all')}
-                            className={`px-2.5 py-1 rounded-md font-medium transition-colors ${statusFilter === 'all'
-                                ? 'bg-white text-gray-900 shadow-sm'
+                            className={`px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${statusFilter === 'all'
+                                ? 'bg-white text-gray-900 shadow-xs'
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
@@ -200,8 +200,8 @@ export default function SubcontractsSection({ projectId, projectName }) {
                         </button>
                         <button
                             onClick={() => setStatusFilter('active')}
-                            className={`px-2.5 py-1 rounded-md font-medium transition-colors ${statusFilter === 'active'
-                                ? 'bg-white text-gray-900 shadow-sm'
+                            className={`px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${statusFilter === 'active'
+                                ? 'bg-white text-gray-900 shadow-xs'
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
@@ -209,8 +209,8 @@ export default function SubcontractsSection({ projectId, projectName }) {
                         </button>
                         <button
                             onClick={() => setStatusFilter('completed')}
-                            className={`px-2.5 py-1 rounded-md font-medium transition-colors ${statusFilter === 'completed'
-                                ? 'bg-white text-gray-900 shadow-sm'
+                            className={`px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${statusFilter === 'completed'
+                                ? 'bg-white text-gray-900 shadow-xs'
                                 : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
@@ -219,16 +219,135 @@ export default function SubcontractsSection({ projectId, projectName }) {
                     </div>
                 </div>
 
-                <Button onClick={() => setIsAddOpen(true)} className="w-full sm:w-auto shadow-sm">
+                <Button onClick={() => setIsAddOpen(true)} className="w-full sm:w-auto shadow-xs">
                     <Plus className="h-4 w-4 mr-1.5" />
                     New Subcontract
                 </Button>
             </div>
 
-            {/* Subcontracts Table */}
-            <Card className="p-0 overflow-hidden shadow-sm border border-gray-200">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
+            {/* Mobile View: Cards */}
+            <div className="block md:hidden space-y-3">
+                {loading ? (
+                    <Card className="text-center py-8 text-sm text-gray-500">Loading subcontracts...</Card>
+                ) : filteredSubcontracts.length === 0 ? (
+                    <Card className="text-center py-8">
+                        <Briefcase className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                        <p className="font-semibold text-gray-700 text-sm">No subcontracts found</p>
+                        {!searchQuery && (
+                            <Button size="sm" onClick={() => setIsAddOpen(true)} className="mt-3">
+                                <Plus className="h-4 w-4 mr-1" /> Add Subcontract
+                            </Button>
+                        )}
+                    </Card>
+                ) : (
+                    filteredSubcontracts.map((sub) => {
+                        const cAmount = Number(sub.contractAmount || 0);
+                        const pAmount = Number(sub.totalPaid || 0);
+                        const bal = cAmount - pAmount;
+                        const pct = cAmount > 0 ? Math.min(100, Math.round((pAmount / cAmount) * 100)) : 0;
+
+                        return (
+                            <Card key={sub.id} className="p-4 space-y-3 border border-gray-200">
+                                <div className="flex justify-between items-start gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="font-bold text-gray-900 text-base">{sub.contractorName}</h3>
+                                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                            <Badge variant="blue" className="text-[11px] py-0 px-2">
+                                                {sub.trade || 'General'}
+                                            </Badge>
+                                            {sub.contactPerson && (
+                                                <span className="text-xs text-gray-500 flex items-center">
+                                                    <User className="h-3 w-3 mr-0.5 text-gray-400" />
+                                                    {sub.contactPerson}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <Badge
+                                        variant={
+                                            sub.status === 'completed'
+                                                ? 'green'
+                                                : sub.status === 'on_hold'
+                                                    ? 'yellow'
+                                                    : 'blue'
+                                        }
+                                    >
+                                        {sub.status === 'completed'
+                                            ? 'Completed'
+                                            : sub.status === 'on_hold'
+                                                ? 'On Hold'
+                                                : 'Active'}
+                                    </Badge>
+                                </div>
+
+                                {sub.phone && (
+                                    <a href={`tel:${sub.phone}`} className="text-xs text-primary-600 hover:text-primary-700 flex items-center font-medium">
+                                        <Phone className="h-3.5 w-3.5 mr-1 text-primary-500" />
+                                        {sub.phone}
+                                    </a>
+                                )}
+
+                                {/* Progress */}
+                                <div>
+                                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                        <span>Paid: LKR {pAmount.toLocaleString()}</span>
+                                        <span>{pct}% settled</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 rounded-full h-2">
+                                        <div className="bg-green-500 h-2 rounded-full" style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+
+                                {/* Financial row */}
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 text-xs">
+                                    <div>
+                                        <span className="text-gray-500 block">Contract Value</span>
+                                        <span className="font-bold text-gray-900 text-sm">LKR {cAmount.toLocaleString()}</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-gray-500 block">Balance Due</span>
+                                        <span className={`font-bold text-sm ${bal <= 0 ? 'text-green-600' : 'text-amber-700'}`}>
+                                            LKR {bal.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() => setActiveLedgerSubcontract(sub)}
+                                        className="flex-1 text-xs py-2 shadow-xs"
+                                    >
+                                        <BookOpen className="h-3.5 w-3.5 mr-1" />
+                                        Account Ledger
+                                    </Button>
+                                    <button
+                                        onClick={() => setEditingSubcontract(sub)}
+                                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-lg touch-manipulation"
+                                        title="Edit"
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(sub)}
+                                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg touch-manipulation"
+                                        title="Delete"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </Card>
+                        );
+                    })
+                )}
+            </div>
+
+            {/* Desktop View: Subcontracts Table */}
+            <Card className="hidden md:block p-0 overflow-hidden shadow-sm border border-gray-200">
+                <div className="w-full overflow-x-auto touch-scroll">
+                    <table className="min-w-full divide-y divide-gray-200 text-left">
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -398,14 +517,14 @@ export default function SubcontractsSection({ projectId, projectName }) {
                                                     </Button>
                                                     <button
                                                         onClick={() => setEditingSubcontract(sub)}
-                                                        className="text-gray-500 hover:text-blue-600 p-1.5 rounded hover:bg-gray-100 transition-colors"
+                                                        className="text-gray-500 hover:text-blue-600 p-1.5 rounded hover:bg-gray-100 transition-colors touch-manipulation"
                                                         title="Edit details"
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(sub)}
-                                                        className="text-gray-500 hover:text-red-600 p-1.5 rounded hover:bg-gray-100 transition-colors"
+                                                        className="text-gray-500 hover:text-red-600 p-1.5 rounded hover:bg-gray-100 transition-colors touch-manipulation"
                                                         title="Delete subcontract"
                                                     >
                                                         <Trash2 className="h-4 w-4" />

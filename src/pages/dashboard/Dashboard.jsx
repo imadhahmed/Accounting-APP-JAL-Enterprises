@@ -89,29 +89,29 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
                     <p className="mt-1 text-sm text-gray-500">
                         Overview of your financial performance
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
                     <Briefcase className="h-5 w-5 mr-2" />
                     New Project
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                 {statCards.map((item) => (
-                    <Card key={item.name} className="flex items-center">
-                        <div className={`flex-shrink-0 p-3 rounded-md ${item.color}`}>
-                            <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                    <Card key={item.name} className="flex items-center p-3.5 sm:p-5">
+                        <div className={`flex-shrink-0 p-3 rounded-xl ${item.color}`}>
+                            <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" aria-hidden="true" />
                         </div>
-                        <div className="ml-5 w-0 flex-1">
+                        <div className="ml-4 w-0 flex-1 min-w-0">
                             <dl>
-                                <dt className="text-sm font-medium text-gray-500 truncate">{item.name}</dt>
-                                <dd className={`text-lg font-semibold ${item.textColor || 'text-gray-900'}`}>
+                                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">{item.name}</dt>
+                                <dd className={`text-base sm:text-lg font-bold truncate ${item.textColor || 'text-gray-900'}`}>
                                     {item.value}
                                 </dd>
                             </dl>
@@ -120,36 +120,39 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            <div className="mt-8">
-                <h2 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Projects</h2>
-                <Card className="overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+            <div className="mt-6 sm:mt-8">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Projects</h2>
+                    <span className="text-xs text-gray-500 sm:hidden">Swipe to view more →</span>
+                </div>
+                <Card className="p-0 overflow-hidden shadow-xs border border-gray-200">
+                    <div className="w-full overflow-x-auto touch-scroll">
+                        <table className="min-w-full divide-y divide-gray-200 text-left">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Credited</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expenses</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" className="px-3.5 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Project Name</th>
+                                    <th scope="col" className="px-3.5 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Value</th>
+                                    <th scope="col" className="px-3.5 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Credited</th>
+                                    <th scope="col" className="px-3.5 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Expenses</th>
+                                    <th scope="col" className="px-3.5 sm:px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200 text-sm">
                                 {projects.slice(0, 5).map((project) => (
-                                    <tr key={project.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                                    <tr key={project.id} className="hover:bg-gray-50/70 transition-colors">
+                                        <td className="px-3.5 sm:px-6 py-3.5 whitespace-nowrap">
+                                            <div className="font-semibold text-gray-900">{project.name}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">LKR {Number(project.value).toLocaleString()}</div>
+                                        <td className="px-3.5 sm:px-6 py-3.5 whitespace-nowrap text-gray-700">
+                                            LKR {Number(project.value).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-green-600">LKR {(project.totalCredited || 0).toLocaleString()}</div>
+                                        <td className="px-3.5 sm:px-6 py-3.5 whitespace-nowrap font-medium text-green-600">
+                                            LKR {(project.totalCredited || 0).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-red-600">LKR {(project.totalExpenses || 0).toLocaleString()}</div>
+                                        <td className="px-3.5 sm:px-6 py-3.5 whitespace-nowrap font-medium text-red-600">
+                                            LKR {(project.totalExpenses || 0).toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-3.5 sm:px-6 py-3.5 whitespace-nowrap">
                                             <Badge variant={project.totalCredited >= project.value ? 'green' : 'blue'}>
                                                 {project.totalCredited >= project.value ? 'Completed' : 'In Progress'}
                                             </Badge>
@@ -158,7 +161,7 @@ export default function Dashboard() {
                                 ))}
                                 {projects.length === 0 && (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
                                             No projects found. Start by creating one.
                                         </td>
                                     </tr>
